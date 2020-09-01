@@ -14,10 +14,33 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
+use Comely\DataTypes\Buffer\Base16;
+use FurqanSiddiqui\Ethereum\Ethereum;
+
 /**
  * Class MasterKeyPair
  * @package FurqanSiddiqui\Ethereum\KeyPair
  */
 class MasterHDKey extends HDKey
 {
+    /**
+     * MasterHDKey constructor.
+     * @param Ethereum $eth
+     * @param Base16 $seed
+     * @param string|null $hmacKey
+     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
+     */
+    public function __construct(Ethereum $eth, Base16 $seed, ?string $hmacKey = null)
+    {
+        $binary = $seed->binary();
+        if (!in_array($binary->size()->bits(), [128, 256, 512])) {
+            throw new \LengthException('Base16 seed must be 128, 256 or 512-bit long');
+        }
+
+        if ($hmacKey) {
+            $binary = $binary->hash()->hmac("sha512", $hmacKey);
+        }
+
+        parent::__construct($eth, $binary, null, null);
+    }
 }

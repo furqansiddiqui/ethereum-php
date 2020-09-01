@@ -29,6 +29,8 @@ class Ethereum
     public const ECDSA_CURVE = Curves::SECP256K1;
     /** @var int Fixed length of private keys in bits */
     public const PRIVATE_KEY_BITS = 256;
+    /** @var string BIP32 MKD HMAC Key */
+    public const HD_MKD_HMAC_KEY = "Bitcoin seed";
 
     /** @var KeyPairFactory */
     private KeyPairFactory $keyPairFactory;

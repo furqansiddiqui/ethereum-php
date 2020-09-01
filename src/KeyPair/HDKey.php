@@ -43,5 +43,47 @@ class HDKey extends ExtendedKey
         parent::__construct($seed, $parent, $childNumber);
     }
 
+    /**
+     * @param $path
+     * @return HDKey
+     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
+     */
+    public function derivePath($path): ExtendedKeyInterface
+    {
+        return parent::derivePath($path);
+    }
 
+    /**
+     * @param int $index
+     * @param bool $isHardened
+     * @return ExtendedKeyInterface
+     * @throws \FurqanSiddiqui\BIP32\Exception\ChildKeyDeriveException
+     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
+     */
+    public function derive(int $index, bool $isHardened = false): ExtendedKeyInterface
+    {
+        $extendedKey = parent::derive($index, $isHardened);
+        return new HDKey($this->eth, $extendedKey->raw(), $this, $extendedKey->childNumber());
+    }
+
+    /**
+     * @return PrivateKey
+     */
+    public function privateKey(): PrivateKey
+    {
+        if (!$this->privateKeyInstance instanceof PrivateKey) {
+            $this->privateKeyInstance = new PrivateKey($this->eth, $this->privateKey, $this);
+        }
+
+        return $this->privateKeyInstance;
+    }
+
+    /**
+     * @return PublicKey
+     * @throws \FurqanSiddiqui\BIP32\Exception\PublicKeyException
+     */
+    public function publicKey(): PublicKey
+    {
+        return $this->privateKey()->publicKey();
+    }
 }

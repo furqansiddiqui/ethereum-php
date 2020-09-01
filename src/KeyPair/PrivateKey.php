@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
 use Comely\DataTypes\Buffer\Base16;
-use FurqanSiddiqui\BIP32\Extend\ExtendedKeyInterface;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
@@ -31,9 +30,9 @@ class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
      * PrivateKey constructor.
      * @param Ethereum $eth
      * @param Base16 $entropy
-     * @param ExtendedKeyInterface|null $extendedKey
+     * @param HDKey|null $extendedKey
      */
-    public function __construct(Ethereum $eth, Base16 $entropy, ?ExtendedKeyInterface $extendedKey = null)
+    public function __construct(Ethereum $eth, Base16 $entropy, ?HDKey $extendedKey = null)
     {
         $this->eth = $eth;
         parent::__construct($entropy, $extendedKey);
