@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
 use Comely\DataTypes\Buffer\Base16;
-use FurqanSiddiqui\BIP32\ECDSA\Curves;
 use FurqanSiddiqui\BIP32\Extend\ExtendedKeyInterface;
 use FurqanSiddiqui\BIP32\Extend\PublicKeyInterface;
 use FurqanSiddiqui\Ethereum\Ethereum;
@@ -41,7 +40,7 @@ class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
         parent::__construct($entropy, $extendedKey);
 
         if (!$extendedKey) {
-            $this->set("curve", Curves::SECP256K1);
+            $this->set("curve", Ethereum::ECDSA_CURVE);
         }
     }
 
