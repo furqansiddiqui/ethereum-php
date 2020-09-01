@@ -16,7 +16,6 @@ namespace FurqanSiddiqui\Ethereum\KeyPair;
 
 use Comely\DataTypes\Buffer\Base16;
 use FurqanSiddiqui\BIP32\Extend\ExtendedKeyInterface;
-use FurqanSiddiqui\BIP32\Extend\PublicKeyInterface;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
@@ -45,15 +44,15 @@ class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
     }
 
     /**
-     * @return PublicKeyInterface
+     * @return PublicKey
      * @throws \FurqanSiddiqui\BIP32\Exception\PublicKeyException
      */
-    public function publicKey(): PublicKeyInterface
+    public function publicKey(): PublicKey
     {
         if (!$this->publicKey instanceof PublicKey) {
             $this->publicKey = new PublicKey($this->eth, $this);
         }
 
-        return parent::publicKey();
+        return $this->publicKey;
     }
 }
