@@ -15,9 +15,12 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
 use Comely\DataTypes\Buffer\Base16;
+use Comely\DataTypes\Buffer\Binary;
 use FurqanSiddiqui\BIP32\Extend\PrivateKeyInterface;
 use FurqanSiddiqui\ECDSA\ECC\EllipticCurveInterface;
+use FurqanSiddiqui\Ethereum\Accounts\Account;
 use FurqanSiddiqui\Ethereum\Ethereum;
+use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
 
 /**
  * Class PublicKey
@@ -27,6 +30,8 @@ class PublicKey extends \FurqanSiddiqui\BIP32\KeyPair\PublicKey
 {
     /** @var Ethereum */
     private Ethereum $eth;
+    /** @var Account|null */
+    private ?Account $account = null;
 
     /**
      * PublicKey constructor.
@@ -49,5 +54,33 @@ class PublicKey extends \FurqanSiddiqui\BIP32\KeyPair\PublicKey
     public function eth(): Ethereum
     {
         return $this->eth;
+    }
+
+    /**
+     * @return Account
+     * @throws \FurqanSiddiqui\Ethereum\Exception\AccountsException
+     */
+    public function getAccount(): Account
+    {
+        if (!$this->account) {
+            $this->account = new Account($this->eth, $this->getAccountAddress());
+        }
+
+        return $this->account;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccountAddress(): string
+    {
+        $pubKeyX = $this->eccPublicKeyObj->x();
+        $pubKeyY = $this->eccPublicKeyObj->y();
+        $pubKey = (new Binary())
+            ->append($pubKeyX->binary())
+            ->append($pubKeyY->binary());
+
+        $keccakHash = new Binary(Keccak::hash($pubKey->raw(), 256, true));
+        return $keccakHash->substr(-20)->base16()->hexits(true);
     }
 }
