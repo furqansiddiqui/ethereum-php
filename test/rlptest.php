@@ -36,6 +36,7 @@ function rlpEncode(array $data)
     echo "<th>Input</th>";
     echo "<th>Expected</th>";
     echo "<th>Return</th>";
+    echo "<th>Decoded</th>";
     echo "<th>Pass</th>";
     echo "</tr>";
     echo "</thead>";
@@ -57,7 +58,9 @@ function generateOutput($value, $key, $rlp)
             <td><?=var_dump($value["in"]); ?></td>
             <?php
             echo "<td style='word-break: break-all'>".$value["out"]."</td>";
-            echo "<td style='word-break: break-all'>".$rlp->digest($value["in"])->toString()."</td>";
+            $encoded = $rlp->digest($value["in"])->toString();
+            echo "<td style='word-break: break-all'>".$encoded."</td>";
+            echo "<td style='word-break: break-all'>". json_encode(\FurqanSiddiqui\Ethereum\RLP::Decode($encoded)[0])."</td>";
 
             $result = "0x".$rlp->digest($value["in"])->toString()==$value["out"]?"true":"false";
             echo "<td>".  $result."</td>";
