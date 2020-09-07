@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum;
 
+use Comely\DataTypes\Buffer\Binary;
 use Comely\DataTypes\Strings\ASCII;
 use FurqanSiddiqui\Ethereum\Exception\RLPEncodeException;
 use FurqanSiddiqui\Ethereum\RLP\RLPEncoded;
@@ -24,9 +25,64 @@ use FurqanSiddiqui\Ethereum\RLP\RLPEncoded;
  */
 class RLP
 {
-    public static function Decode(string $rlpEncodedStr): array
+    /**
+     * @param string $rlpEncodedStr
+     * @param bool $base16Encoded
+     * @return array
+     */
+    public static function Decode(string $rlpEncodedStr, bool $base16Encoded = true): array
     {
-        // Todo: write RLP decoder
+        $buffer = [];
+        $binary = new Binary($rlpEncodedStr);
+        $byteLen = $base16Encoded ? 2 : 1;
+        $byteReader = $binary->read();
+        while (!$byteReader->isEnd()) {
+            unset($prefix, $bytes, $lenBytes, $strLen, $arrayLen, $arrayBytes);
+
+            $prefix = hexdec($byteReader->next(2));
+            if ($prefix < 128) { // Single byte
+                $buffer[] = $prefix;
+                continue;
+            }
+
+            if ($prefix === 128) {
+                $buffer[] = "";
+                continue;
+            }
+
+            if ($prefix < 184) { // String up to 55 bytes
+                $strLen = $prefix - 128;
+                $buffer[] = $byteReader->next($byteLen * $strLen);
+                continue;
+            }
+
+            if ($prefix < 192) { // Long strings
+                $lenBytes = $prefix - 183;
+                $strLen = self::unpack($byteReader->next($byteLen * $lenBytes));
+                $buffer[] = $byteReader->next($byteLen * $strLen);
+                continue;
+            }
+
+            if ($prefix === 192) {
+                $buffer[] = [];
+                continue;
+            }
+
+            // Arrays
+            if ($prefix < 248) {
+                $arrayLen = $prefix - 192;
+                $arrayBytes = $byteReader->next($byteLen * $arrayLen);
+                $buffer[] = self::Decode($arrayBytes);
+                continue;
+            }
+
+            // Long Array
+            $lenBytes = $prefix - 247;
+            $arrayLen = self::unpack($byteReader->next($byteLen * $lenBytes));
+            $buffer[] = self::Decode($byteReader->next($byteLen * $arrayLen));
+        }
+
+        return $buffer;
     }
 
     /**
@@ -193,6 +249,39 @@ class RLP
         }
 
         return $this->evenOutHex($packed);
+    }
+
+    /**
+     * @param string $hex
+     * @param int|null $size
+     * @return int
+     */
+    private static function unpack(string $hex, ?int $size = null): int
+    {
+        if (strlen($hex) % 2 !== 0) {
+            $hex = "0" . $hex;
+        }
+
+        if (!$size) {
+            $size = strlen($hex) / 2;
+        }
+
+        if ($size < 1 || $size > 8) {
+            throw new \OutOfRangeException('Invalid unpack integer size');
+        }
+
+        switch ($size) {
+            case 8:
+                return unpack("J", $hex)[0];
+            case 4:
+                return unpack("N", $hex)[0];
+            case 2:
+                return unpack("n", $hex)[1];
+            case 1:
+                return hexdec($hex);
+            default:
+                throw new \InvalidArgumentException('Failed to unpack %d byte integer', $size);
+        }
     }
 
     /**
