@@ -18,6 +18,7 @@ use FurqanSiddiqui\BIP32\ECDSA\Curves;
 use FurqanSiddiqui\Ethereum\Accounts\Account;
 use FurqanSiddiqui\Ethereum\KeyPair\HDFactory;
 use FurqanSiddiqui\Ethereum\KeyPair\KeyPairFactory;
+use FurqanSiddiqui\Ethereum\Math\WEIConverter;
 
 /**
  * Class Ethereum
@@ -36,6 +37,8 @@ class Ethereum
     private KeyPairFactory $keyPairFactory;
     /** @var HDFactory */
     private HDFactory $hdFactory;
+    /** @var WEIConverter */
+    private WEIConverter $weiConverter;
 
     /**
      * Ethereum constructor.
@@ -44,6 +47,7 @@ class Ethereum
     {
         $this->keyPairFactory = new KeyPairFactory($this);
         $this->hdFactory = new HDFactory($this);
+        $this->weiConverter = new WEIConverter();
     }
 
     /**
@@ -70,5 +74,13 @@ class Ethereum
     public function getAccount($addr): Account
     {
         return new Account($this, $addr);
+    }
+
+    /**
+     * @return WEIConverter
+     */
+    public function wei(): WEIConverter
+    {
+        return $this->weiConverter;
     }
 }
