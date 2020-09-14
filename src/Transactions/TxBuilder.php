@@ -142,15 +142,15 @@ class TxBuilder
 
     /**
      * @param int $v
-     * @param Base16 $r
-     * @param Base16 $s
+     * @param Base16|null $r
+     * @param Base16|null $s
      * @return $this
      */
-    public function signature(int $v, Base16 $r, Base16 $s): self
+    public function signature(int $v, ?Base16 $r = null, ?Base16 $s = null): self
     {
         $this->signature["v"] = $v;
-        $this->signature["r"] = $r->value();
-        $this->signature["s"] = $s->value();
+        $this->signature["r"] = $r ? $r->value() : "";
+        $this->signature["s"] = $s ? $s->value() : "";
         return $this;
     }
 
