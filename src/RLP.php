@@ -134,13 +134,13 @@ class RLP
         }
 
         if (is_int($arg)) {
-            return $this->encodeInteger($arg);
+            return $this->encodeInteger($arg)->byteArray();
         } elseif (is_string($arg)) {
             if (preg_match('/^0x[a-f0-9]+$/i', $arg)) {
-                return $this->encodeHex($arg);
+                return $this->encodeHex($arg)->byteArray();
             }
 
-            return $this->encodeStr($arg);
+            return $this->encodeStr($arg)->byteArray();
         } elseif (is_array($arg)) {
             $buffer = [];
             foreach ($arg as $key => $value) {
@@ -182,18 +182,18 @@ class RLP
 
     /**
      * @param string $hex
-     * @return string[]
+     * @return RLPEncoded
      */
-    public function encodeHex(string $hex): array
+    public function encodeHex(string $hex): RLPEncoded
     {
         return $this->_encodeString((new Base16($hex))->hexits(false), 2, false);
     }
 
     /**
      * @param string $str
-     * @return string[]
+     * @return RLPEncoded
      */
-    public function encodeStr(string $str): array
+    public function encodeStr(string $str): RLPEncoded
     {
         return $this->_encodeString($str, 1);
     }
@@ -202,9 +202,9 @@ class RLP
      * @param string $str
      * @param int $byteLen
      * @param bool|null $convert2Hex
-     * @return string[]
+     * @return RLPEncoded
      */
-    private function _encodeString(string $str, int $byteLen = 1, ?bool $convert2Hex = null): array
+    private function _encodeString(string $str, int $byteLen = 1, ?bool $convert2Hex = null): RLPEncoded
     {
         if (!is_bool($convert2Hex)) {
             $convert2Hex = $this->convertAscii2Hex;
@@ -212,37 +212,33 @@ class RLP
 
         $strLen = (int)ceil(strlen($str) / $byteLen);
         if ($strLen === 1 && ord($str) < 0x80) {
-            if ($convert2Hex) {
-                return [ASCII::base16Encode($str)->value()];
-            } else {
-                return [$str];
-            }
+            return new RLPEncoded([$convert2Hex ? ASCII::base16Encode($str)->value() : $str]);
         }
 
         if (!$strLen || !$str) {
-            return [$this->packInteger(128)];
+            return new RLPEncoded([$this->packInteger(128)]);
         }
 
-        $strArr = $convert2Hex ? str_split(ASCII::base16Encode($str)->value(), 2) : str_split($str, 1);
+        $strArr = $convert2Hex ? str_split(ASCII::base16Encode($str)->value(), 2) : str_split($str, $byteLen);
         if ($strLen <= 55) {
             array_unshift($strArr, $this->packInteger(128 + $strLen));
-            return $strArr;
+            return new RLPEncoded($strArr);
         }
 
         $strLenSize = $this->intSize($strLen);
         array_unshift($strArr, $this->packInteger(183 + $strLenSize), $this->packInteger($strLen));
-        return $strArr;
+        return new RLPEncoded($strArr);
     }
 
     /**
-     * @param string|int $dec
-     * @return string[]
+     * @param $dec
+     * @return RLPEncoded
      */
-    public function encodeInteger($dec): array
+    public function encodeInteger($dec): RLPEncoded
     {
         $dec = Integers::checkValidInt($dec);
         if ($dec === 0) {
-            return [$this->packInteger(128)];
+            return new RLPEncoded([$this->packInteger(128)]);
         }
 
         if ($dec < 0x80) {
@@ -252,14 +248,14 @@ class RLP
             $packed = $this->packInteger(0x80 + $intSize) . $this->packInteger($dec);
         }
 
-        return str_split($packed, 2);
+        return new RLPEncoded(str_split($packed, 2));
     }
 
     /**
-     * @param int $dec
+     * @param int|string|BcNumber $dec
      * @return int
      */
-    private function intSize(int $dec): int
+    private function intSize($dec): int
     {
         return strlen($this->packInteger($dec)) / 2;
     }
