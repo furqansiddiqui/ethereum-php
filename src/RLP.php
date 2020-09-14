@@ -210,7 +210,7 @@ class RLP
             $convert2Hex = $this->convertAscii2Hex;
         }
 
-        $strLen = (int)floor(strlen($str) / $byteLen);
+        $strLen = (int)ceil(strlen($str) / $byteLen);
         if ($strLen === 1 && ord($str) < 0x80) {
             if ($convert2Hex) {
                 return [ASCII::base16Encode($str)->value()];
