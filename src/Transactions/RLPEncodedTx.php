@@ -14,6 +14,9 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
+use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
+use FurqanSiddiqui\Ethereum\RLP\RLPEncoded;
+
 /**
  * Class RLPEncodedTx
  * @package FurqanSiddiqui\Ethereum\Transactions
@@ -21,10 +24,44 @@ namespace FurqanSiddiqui\Ethereum\Transactions;
 class RLPEncodedTx
 {
     /** @var string */
-    private string $rlpEncodedStr;
+    private string $encodedStr;
+    /** @var bool */
+    private bool $signed;
+    /** @var string */
+    private string $hash;
 
-    public function __construct(string $rlpEncodedStr)
+    /**
+     * RLPEncodedTx constructor.
+     * @param RLPEncoded $encoded
+     */
+    public function __construct(RLPEncoded $encoded)
     {
+        $this->encodedStr = $encoded->toString();
+        $this->signed = substr($this->encodedStr, -6) !== "018080";
+        $this->hash = Keccak::hash(hex2bin($this->encodedStr), 256);
+    }
 
+    /**
+     * @return string
+     */
+    public function serialized(): string
+    {
+        return $this->encodedStr;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSigned(): bool
+    {
+        return $this->signed;
+    }
+
+    /**
+     * @return string
+     */
+    public function hash(): string
+    {
+        return $this->hash;
     }
 }

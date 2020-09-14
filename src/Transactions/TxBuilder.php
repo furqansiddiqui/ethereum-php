@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
+use Comely\DataTypes\Buffer\Base16;
 use FurqanSiddiqui\Ethereum\Accounts\Account;
 use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\IncompleteTxException;
@@ -26,32 +27,65 @@ use FurqanSiddiqui\Ethereum\RLP;
  */
 class TxBuilder
 {
-    public const EIP_155 = "018080";
-
-    /** @var Ethereum */
-    private Ethereum $eth;
-
     /** @var int */
     private int $nonce;
-    /** @var int */
-    private int $gasLimit;
     /** @var WEIValue */
     private WEIValue $gasPrice;
+    /** @var int */
+    private int $gasLimit;
     /** @var Account */
     private Account $to;
     /** @var WEIValue */
     private WEIValue $value;
     /** @var string|null */
     private ?string $data = null;
+    /** @var array default value is based on EIP_155 */
+    private array $signature = [
+        "v" => 1,
+        "r" => "",
+        "s" => "",
+    ];
+
+    /**
+     * @param Ethereum $eth
+     * @param RLPEncodedTx $encoded
+     * @return static
+     * @throws \FurqanSiddiqui\Ethereum\Exception\AccountsException
+     */
+    public static function Decode(Ethereum $eth, RLPEncodedTx $encoded): self
+    {
+        $decoder = new RLP\RLPDecoder($encoded->serialized());
+        $decoder->expectInteger(0, "nonce")
+            ->expectInteger(1, "gasPrice")
+            ->expectInteger(2, "gasLimit")
+            ->mapValue(3, "to")
+            ->expectInteger(4, "value")
+            ->mapValue(5, "data")
+            ->expectInteger(6, "signatureV")
+            ->mapValue(7, "signatureR")
+            ->mapValue(8, "signatureS");
+
+        $decoded = $decoder->decode();
+        $tx = new self();
+        $tx->nonce($decoded["nonce"])
+            ->gas($eth->wei()->fromWei($decoded["gasPrice"]), $decoded["gasLimit"])
+            ->to($eth->getAccount($decoded["to"]))
+            ->value($eth->wei()->fromWei($decoded["value"]))
+            ->signature(
+                $decoded["signatureV"],
+                new Base16($decoded["signatureR"]),
+                new Base16($decoded["signatureS"])
+            );
+
+        return $tx;
+    }
 
     /**
      * TxBuilder constructor.
-     * @param Ethereum $eth
      */
-    public function __construct(Ethereum $eth)
+    public function __construct()
     {
-        $this->eth = $eth;
-        $this->value($eth->wei()->fromWei(0)); // Set to 0.00 ETH default value
+        $this->value = new WEIValue("0");
     }
 
     /**
@@ -106,45 +140,62 @@ class TxBuilder
         return $this;
     }
 
-    public function encodeRLP(): array
+    /**
+     * @param int $v
+     * @param Base16 $r
+     * @param Base16 $s
+     * @return $this
+     */
+    public function signature(int $v, Base16 $r, Base16 $s): self
+    {
+        $this->signature["v"] = $v;
+        $this->signature["r"] = $r->value();
+        $this->signature["s"] = $s->value();
+        return $this;
+    }
+
+    /**
+     * @return RLPEncodedTx
+     * @throws IncompleteTxException
+     */
+    public function serialize(): RLPEncodedTx
     {
         $rlp = new RLP();
-        $encoded = [];
+        $txObj = new RLP\RLPObject();
 
         // Nonce
         if (!isset($this->nonce) || $this->nonce < 0) {
             throw new IncompleteTxException('Nonce value is not set or is invalid');
         }
 
-        $encoded["nonce"] = $this->nonce;
+        $txObj->encodeInteger($this->nonce);
 
         // Gas
         if (!isset($this->gasPrice, $this->gasLimit) || $this->gasLimit < 1) {
             throw new IncompleteTxException('Gas price/limit are not defined');
         }
 
-        $encoded["gasPrice"] = $this->gasPrice->wei();
-        $encoded["gasLimit"] = $this->gasLimit;
+        $txObj->encodeInteger($this->gasPrice->wei());
+        $txObj->encodeInteger($this->gasLimit);
 
         // To
         if (!isset($this->to)) {
             throw new IncompleteTxException('To/Payee address is not set');
         }
 
-        $encoded["to"] = $this->to->getAddress();
+        $txObj->encodeHexString($this->to->getAddress());
 
         // Value
-        $encoded["value"] = $this->value->wei();
+        $txObj->encodeInteger($this->value->wei());
 
         // Data/Contract Code
-        $encoded["data"] = $this->data;
+        $txObj->encodeHexString($this->data ?? "");
 
-        // EIP_155
-        $encoded["EIP_155"] = self::EIP_155;
+        // Signature
+        $txObj->encodeInteger($this->signature["v"]);
+        $txObj->encodeHexString($this->signature["r"]);
+        $txObj->encodeHexString($this->signature["s"]);
 
-        var_dump($encoded);
-
-        var_dump(RLP::Encode($encoded)->toString());
-        return $encoded;
+        return new RLPEncodedTx($txObj->getRLPEncoded($rlp));
     }
 }
