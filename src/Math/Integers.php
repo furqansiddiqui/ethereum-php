@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Math;
 
+use Comely\DataTypes\BcNumber;
+
 /**
  * Class Integers
  * @package FurqanSiddiqui\Ethereum\Math
@@ -22,72 +24,67 @@ class Integers
 {
     /**
      * @param string $hex
-     * @param int|null $size
-     * @return int
+     * @return BcNumber
      */
-    public static function Unpack_UInt_BE(string $hex, ?int $size = null): int
+    public static function Unpack(string $hex): BcNumber
     {
-        if (strlen($hex) % 2 !== 0) {
-            $hex = "0" . $hex;
+        if (substr($hex, 0, 2) === "0x") {
+            $hex = substr($hex, 2);
         }
 
-        if (!$size) {
-            $size = strlen($hex) / 2;
-        }
-
-        if ($size < 1 || $size > 8) {
-            throw new \OutOfRangeException('Invalid unpack integer size');
-        }
-
-        switch ($size) {
-            case 8:
-                return unpack("J", $hex)[0];
-            case 4:
-                return unpack("N", $hex)[0];
-            case 2:
-                return unpack("n", $hex)[1];
-            case 1:
-                return hexdec($hex);
-            default:
-                throw new \InvalidArgumentException('Failed to unpack %d byte integer', $size);
-        }
+        $hex = self::HexitPads($hex);
+        return new BcNumber(gmp_strval(gmp_init($hex, 16), 10));
     }
 
     /**
-     * @param int $dec
-     * @param bool $ltrim
+     * @param string|int $dec
      * @return string
      */
-    public static function Pack_UInt_BE(int $dec, bool $ltrim = true): string
+    public static function Pack_UInt_BE($dec): string
     {
-        if ($dec <= 0xff) {
-            $packed = dechex($dec);
-        } elseif ($dec <= 0xffff) {
-            $packed = bin2hex(pack("n", $dec));
-        } elseif ($dec <= 0xffffffff) {
-            $packed = bin2hex(pack("N", $dec));
-        } else {
-            $packed = bin2hex(pack("J", $dec));
-        }
+        $dec = self::checkValidInt($dec);
+        return self::HexitPads(bin2hex(gmp_export(gmp_init($dec, 10), 1, GMP_MSW_FIRST | GMP_NATIVE_ENDIAN)));
+    }
 
-        return self::HexitPads($packed, $ltrim);
+    /**
+     * @param $dec
+     * @return string
+     */
+    public static function Pack_UInt_LE($dec): string
+    {
+        $dec = self::checkValidInt($dec);
+        return self::HexitPads(bin2hex(gmp_export(gmp_init($dec, 10), 1, GMP_LSW_FIRST | GMP_NATIVE_ENDIAN)));
     }
 
     /**
      * @param string $hex
-     * @param bool $ltrim remove leading 0s on left side of packed hexadecimal string?
      * @return string
      */
-    public static function HexitPads(string $hex, bool $ltrim = true): string
+    public static function HexitPads(string $hex): string
     {
-        if ($ltrim && strlen($hex) > 2) {
-            $hex = ltrim($hex, "0");
-        }
-
         if (strlen($hex) % 2 !== 0) {
             $hex = "0" . $hex;
         }
 
         return $hex;
+    }
+
+    /**
+     * @param int|string|BcNumber $dec
+     * @return int|string
+     */
+    public static function checkValidInt($dec)
+    {
+        if ($dec instanceof BcNumber && $dec->isInteger()) {
+            $dec = $dec->value();
+        }
+
+        if (!is_int($dec)) {
+            if (!is_string($dec) || !preg_match('/^-?(0|[1-9]+[0-9]*)$/', $dec)) {
+                throw new \InvalidArgumentException('Argument must be a valid INT');
+            }
+        }
+
+        return $dec;
     }
 }
