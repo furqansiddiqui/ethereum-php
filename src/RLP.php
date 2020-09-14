@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum;
 
+use Comely\DataTypes\BcNumber;
+use Comely\DataTypes\Buffer\Base16;
 use Comely\DataTypes\Buffer\Binary;
 use Comely\DataTypes\Strings\ASCII;
 use FurqanSiddiqui\Ethereum\Exception\RLPEncodeException;
@@ -59,7 +61,7 @@ class RLP
 
             if ($prefix < 192) { // Long strings
                 $lenBytes = $prefix - 183;
-                $strLen = Integers::Unpack_UInt_BE($byteReader->next($byteLen * $lenBytes));
+                $strLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes));
                 $buffer[] = $byteReader->next($byteLen * $strLen);
                 continue;
             }
@@ -79,7 +81,7 @@ class RLP
 
             // Long Array
             $lenBytes = $prefix - 247;
-            $arrayLen = Integers::Unpack_UInt_BE($byteReader->next($byteLen * $lenBytes));
+            $arrayLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes));
             $buffer[] = self::Decode($byteReader->next($byteLen * $arrayLen));
         }
 
@@ -134,6 +136,10 @@ class RLP
         if (is_int($arg)) {
             return $this->encodeInteger($arg);
         } elseif (is_string($arg)) {
+            if (preg_match('/^0x[a-f0-9]+$/i', $arg)) {
+                return $this->encodeHex($arg);
+            }
+
             return $this->encodeStr($arg);
         } elseif (is_array($arg)) {
             $buffer = [];
@@ -175,14 +181,38 @@ class RLP
     }
 
     /**
+     * @param string $hex
+     * @return string[]
+     */
+    public function encodeHex(string $hex): array
+    {
+        return $this->_encodeString((new Base16($hex))->hexits(false), 2, false);
+    }
+
+    /**
      * @param string $str
      * @return string[]
      */
     public function encodeStr(string $str): array
     {
-        $strLen = strlen($str);
+        return $this->_encodeString($str, 1);
+    }
+
+    /**
+     * @param string $str
+     * @param int $byteLen
+     * @param bool|null $convert2Hex
+     * @return string[]
+     */
+    public function _encodeString(string $str, int $byteLen = 1, ?bool $convert2Hex = null): array
+    {
+        if (!is_bool($convert2Hex)) {
+            $convert2Hex = $this->convertAscii2Hex;
+        }
+
+        $strLen = (int)floor(strlen($str) / $byteLen);
         if ($strLen === 1 && ord($str) < 0x80) {
-            if ($this->convertAscii2Hex) {
+            if ($convert2Hex) {
                 return [ASCII::base16Encode($str)->value()];
             } else {
                 return [$str];
@@ -193,7 +223,7 @@ class RLP
             return [$this->packInteger(128)];
         }
 
-        $strArr = $this->convertAscii2Hex ? str_split(ASCII::base16Encode($str)->value(), 2) : str_split($str, 1);
+        $strArr = $convert2Hex ? str_split(ASCII::base16Encode($str)->value(), 2) : str_split($str, 1);
         if ($strLen <= 55) {
             array_unshift($strArr, $this->packInteger(128 + $strLen));
             return $strArr;
@@ -205,11 +235,12 @@ class RLP
     }
 
     /**
-     * @param int $dec
-     * @return array
+     * @param string|int $dec
+     * @return string[]
      */
-    public function encodeInteger(int $dec): array
+    public function encodeInteger($dec): array
     {
+        $dec = Integers::checkValidInt($dec);
         if ($dec === 0) {
             return [$this->packInteger(128)];
         }
@@ -234,10 +265,10 @@ class RLP
     }
 
     /**
-     * @param int $dec
+     * @param int|string|BcNumber $dec
      * @return string
      */
-    private function packInteger(int $dec): string
+    private function packInteger($dec): string
     {
         return Integers::Pack_UInt_BE($dec);
     }
