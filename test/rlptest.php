@@ -1,9 +1,9 @@
 <?php
 require "../vendor/autoload.php";
+
 //Reading JSON file
 $data=readJsonFile("rlptest.json");
-//echo "<pre>";
-//var_dump($data);exit();
+
 //Encoding With RLP
 rlpEncode($data);
 
