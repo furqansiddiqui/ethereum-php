@@ -14,9 +14,12 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum;
 
+use Comely\DataTypes\BcNumber;
+use Comely\DataTypes\Buffer\Base16;
 use Comely\DataTypes\Buffer\Binary;
 use Comely\DataTypes\Strings\ASCII;
 use FurqanSiddiqui\Ethereum\Exception\RLPEncodeException;
+use FurqanSiddiqui\Ethereum\Math\Integers;
 use FurqanSiddiqui\Ethereum\RLP\RLPEncoded;
 
 /**
@@ -58,7 +61,7 @@ class RLP
 
             if ($prefix < 192) { // Long strings
                 $lenBytes = $prefix - 183;
-                $strLen = self::unpack($byteReader->next($byteLen * $lenBytes));
+                $strLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes));
                 $buffer[] = $byteReader->next($byteLen * $strLen);
                 continue;
             }
@@ -78,7 +81,7 @@ class RLP
 
             // Long Array
             $lenBytes = $prefix - 247;
-            $arrayLen = self::unpack($byteReader->next($byteLen * $lenBytes));
+            $arrayLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes));
             $buffer[] = self::Decode($byteReader->next($byteLen * $arrayLen));
         }
 
@@ -133,6 +136,10 @@ class RLP
         if (is_int($arg)) {
             return $this->encodeInteger($arg);
         } elseif (is_string($arg)) {
+            if (preg_match('/^0x[a-f0-9]+$/i', $arg)) {
+                return $this->encodeHex($arg);
+            }
+
             return $this->encodeStr($arg);
         } elseif (is_array($arg)) {
             $buffer = [];
@@ -174,14 +181,38 @@ class RLP
     }
 
     /**
+     * @param string $hex
+     * @return string[]
+     */
+    public function encodeHex(string $hex): array
+    {
+        return $this->_encodeString((new Base16($hex))->hexits(false), 2, false);
+    }
+
+    /**
      * @param string $str
      * @return string[]
      */
     public function encodeStr(string $str): array
     {
-        $strLen = strlen($str);
+        return $this->_encodeString($str, 1);
+    }
+
+    /**
+     * @param string $str
+     * @param int $byteLen
+     * @param bool|null $convert2Hex
+     * @return string[]
+     */
+    public function _encodeString(string $str, int $byteLen = 1, ?bool $convert2Hex = null): array
+    {
+        if (!is_bool($convert2Hex)) {
+            $convert2Hex = $this->convertAscii2Hex;
+        }
+
+        $strLen = (int)ceil(strlen($str) / $byteLen);
         if ($strLen === 1 && ord($str) < 0x80) {
-            if ($this->convertAscii2Hex) {
+            if ($convert2Hex) {
                 return [ASCII::base16Encode($str)->value()];
             } else {
                 return [$str];
@@ -192,7 +223,7 @@ class RLP
             return [$this->packInteger(128)];
         }
 
-        $strArr = $this->convertAscii2Hex ? str_split(ASCII::base16Encode($str)->value(), 2) : str_split($str, 1);
+        $strArr = $convert2Hex ? str_split(ASCII::base16Encode($str)->value(), 2) : str_split($str, 1);
         if ($strLen <= 55) {
             array_unshift($strArr, $this->packInteger(128 + $strLen));
             return $strArr;
@@ -204,11 +235,12 @@ class RLP
     }
 
     /**
-     * @param int $dec
-     * @return array
+     * @param string|int $dec
+     * @return string[]
      */
-    public function encodeInteger(int $dec): array
+    public function encodeInteger($dec): array
     {
+        $dec = Integers::checkValidInt($dec);
         if ($dec === 0) {
             return [$this->packInteger(128)];
         }
@@ -233,71 +265,11 @@ class RLP
     }
 
     /**
-     * @param int $dec
+     * @param int|string|BcNumber $dec
      * @return string
      */
-    private function packInteger(int $dec): string
+    private function packInteger($dec): string
     {
-        if ($dec <= 0xff) {
-            $packed = dechex($dec);
-        } elseif ($dec <= 0xffff) {
-            $packed = bin2hex(pack("n", $dec));
-        } elseif ($dec <= 0xffffffff) {
-            $packed = bin2hex(pack("N", $dec));
-        } else {
-            $packed = bin2hex(pack("J", $dec));
-        }
-
-        return $this->evenOutHex($packed);
-    }
-
-    /**
-     * @param string $hex
-     * @param int|null $size
-     * @return int
-     */
-    private static function unpack(string $hex, ?int $size = null): int
-    {
-        if (strlen($hex) % 2 !== 0) {
-            $hex = "0" . $hex;
-        }
-
-        if (!$size) {
-            $size = strlen($hex) / 2;
-        }
-
-        if ($size < 1 || $size > 8) {
-            throw new \OutOfRangeException('Invalid unpack integer size');
-        }
-
-        switch ($size) {
-            case 8:
-                return unpack("J", $hex)[0];
-            case 4:
-                return unpack("N", $hex)[0];
-            case 2:
-                return unpack("n", $hex)[1];
-            case 1:
-                return hexdec($hex);
-            default:
-                throw new \InvalidArgumentException('Failed to unpack %d byte integer', $size);
-        }
-    }
-
-    /**
-     * @param string $hex
-     * @return string
-     */
-    private function evenOutHex(string $hex): string
-    {
-        if (strlen($hex) > 2) {
-            $hex = ltrim($hex, "0");
-        }
-
-        if (strlen($hex) % 2 !== 0) {
-            $hex = "0" . $hex;
-        }
-
-        return $hex;
+        return Integers::Pack_UInt_BE($dec);
     }
 }

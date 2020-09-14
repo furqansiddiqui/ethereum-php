@@ -15,6 +15,7 @@
   "require": {
     "php-64bit": "^7.4",
     "ext-openssl": "*",
+    "ext-gmp": "*",
     "ext-bcmath": "*",
     "comely-io/data-types": "^1.0.33",
     "furqansiddiqui/ecdsa-php": "^0.1.8",
