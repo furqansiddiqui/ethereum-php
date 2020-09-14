@@ -204,7 +204,7 @@ class RLP
      * @param bool|null $convert2Hex
      * @return string[]
      */
-    public function _encodeString(string $str, int $byteLen = 1, ?bool $convert2Hex = null): array
+    private function _encodeString(string $str, int $byteLen = 1, ?bool $convert2Hex = null): array
     {
         if (!is_bool($convert2Hex)) {
             $convert2Hex = $this->convertAscii2Hex;
