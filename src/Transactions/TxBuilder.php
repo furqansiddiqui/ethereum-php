@@ -41,7 +41,7 @@ class TxBuilder
     private ?string $data = null;
     /** @var array default value is based on EIP_155 */
     private array $signature = [
-        "v" => 1,
+        "v" => 0,
         "r" => "",
         "s" => "",
     ];
@@ -54,7 +54,7 @@ class TxBuilder
      */
     public static function Decode(Ethereum $eth, RLPEncodedTx $encoded): self
     {
-        $decoder = new RLP\RLPDecoder($encoded->serialized());
+        $decoder = new RLP\RLPDecoder($encoded->serialized()->hexits(false));
         $decoder->expectInteger(0, "nonce")
             ->expectInteger(1, "gasPrice")
             ->expectInteger(2, "gasLimit")
@@ -66,7 +66,7 @@ class TxBuilder
             ->mapValue(8, "signatureS");
 
         $decoded = $decoder->decode();
-        $tx = new self();
+        $tx = new self($eth);
         $tx->nonce($decoded["nonce"])
             ->gas($eth->wei()->fromWei($decoded["gasPrice"]), $decoded["gasLimit"])
             ->to($eth->getAccount($decoded["to"]))
@@ -82,10 +82,12 @@ class TxBuilder
 
     /**
      * TxBuilder constructor.
+     * @param Ethereum $eth
      */
-    public function __construct()
+    public function __construct(Ethereum $eth)
     {
         $this->value = new WEIValue("0");
+        $this->signature["v"] = $eth->networkConfig()->chainId; // EIP-155 chain identifier
     }
 
     /**

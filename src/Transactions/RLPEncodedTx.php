@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
+use Comely\DataTypes\Buffer\Base16;
 use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
 use FurqanSiddiqui\Ethereum\RLP\RLPEncoded;
 
@@ -23,12 +24,12 @@ use FurqanSiddiqui\Ethereum\RLP\RLPEncoded;
  */
 class RLPEncodedTx
 {
-    /** @var string */
-    private string $encodedStr;
+    /** @var Base16 */
+    private Base16 $encodedStr;
     /** @var bool */
     private bool $signed;
-    /** @var string */
-    private string $hash;
+    /** @var Base16 */
+    private Base16 $hash;
 
     /**
      * RLPEncodedTx constructor.
@@ -36,15 +37,18 @@ class RLPEncodedTx
      */
     public function __construct(RLPEncoded $encoded)
     {
-        $this->encodedStr = $encoded->toString();
-        $this->signed = substr($this->encodedStr, -6) !== "018080";
-        $this->hash = Keccak::hash(hex2bin($this->encodedStr), 256);
+        $encodedStr = $encoded->toString();
+        $this->encodedStr = new Base16($encodedStr);
+        $this->encodedStr->readOnly(true);
+        $this->signed = substr($encodedStr, -6) !== "018080";
+        $this->hash = new Base16(Keccak::hash(hex2bin($this->encodedStr), 256));
+        $this->hash->readOnly(true);
     }
 
     /**
-     * @return string
+     * @return Base16
      */
-    public function serialized(): string
+    public function serialized(): Base16
     {
         return $this->encodedStr;
     }
@@ -58,9 +62,9 @@ class RLPEncodedTx
     }
 
     /**
-     * @return string
+     * @return Base16
      */
-    public function hash(): string
+    public function hash(): Base16
     {
         return $this->hash;
     }
