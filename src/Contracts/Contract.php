@@ -91,8 +91,7 @@ class Contract
             "data" => $data
         ];
 
-        $request = $this->rpcClient->call("eth_call", [$params, $block]);
-        $res = $request->get("result");
+        $res = $this->rpcClient->call("eth_call", [$params, $block]);
         if (!is_string($res)) {
             throw RPCInvalidResponseException::InvalidDataType("eth_call", "string", gettype($res));
         }
