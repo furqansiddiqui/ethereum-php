@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Contracts;
 
+use Comely\DataTypes\BcNumber;
 use FurqanSiddiqui\Ethereum\Accounts\Account;
 use FurqanSiddiqui\Ethereum\Exception\ContractsException;
 use FurqanSiddiqui\Ethereum\Exception\RPCInvalidResponseException;
@@ -78,6 +79,16 @@ class Contract
     protected function cleanStr(string $str): string
     {
         return preg_replace('/[^\w]/', '', trim($str));
+    }
+
+    /**
+     * @param string $int
+     * @param int $scale
+     * @return string
+     */
+    protected function decimalValue(string $int, int $scale = 18): string
+    {
+        return (new BcNumber($int))->divide(pow(10, $scale), $scale)->value();
     }
 
     /**
