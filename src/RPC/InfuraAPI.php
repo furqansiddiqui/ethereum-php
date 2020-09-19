@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RPC;
 
+use FurqanSiddiqui\Ethereum\Ethereum;
+
 /**
  * Class InfuraAPI
  * @package FurqanSiddiqui\Ethereum\RPC
@@ -31,13 +33,16 @@ class InfuraAPI extends AbstractRPCClient
 
     /**
      * InfuraAPI constructor.
+     * @param Ethereum $eth
      * @param string $projectId
      * @param string $projectSecret
      * @param string $network
      * @param string $ver
      */
-    public function __construct(string $projectId, string $projectSecret, string $network = "mainnet", string $ver = "v3")
+    public function __construct(Ethereum $eth, string $projectId, string $projectSecret, string $network = "mainnet", string $ver = "v3")
     {
+        parent::__construct($eth);
+
         $this->projectId = $projectId;
         $this->projectSecret = $projectSecret;
         $this->network = $network;
