@@ -36,9 +36,9 @@ class Contract
      * Contract constructor.
      * @param ABI $abi
      * @param Account $addr
-     * @param AbstractRPCClient $rpcClient
+     * @param AbstractRPCClient|null $rpcClient
      */
-    public function __construct(ABI $abi, Account $addr, AbstractRPCClient $rpcClient)
+    public function __construct(ABI $abi, Account $addr, ?AbstractRPCClient $rpcClient = null)
     {
         $this->abi = $abi;
         $this->account = $addr;
