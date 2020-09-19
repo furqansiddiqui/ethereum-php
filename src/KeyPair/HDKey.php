@@ -41,6 +41,8 @@ class HDKey extends ExtendedKey
     {
         $this->eth = $eth;
         parent::__construct($seed, $parent, $childNumber);
+
+        $this->set("curve", Ethereum::ECDSA_CURVE);
     }
 
     /**
