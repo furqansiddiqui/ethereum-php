@@ -94,7 +94,6 @@ abstract class AbstractRPCClient extends JSON_RPC_2
             throw RPCInvalidResponseException::InvalidDataType("eth_chainId", "Base16", gettype($quantity));
         }
 
-        $quantity = $this->eth->wei()->fromWei(Integers::Unpack($quantity))->eth();
         if (!DataTypes::isNumeric($quantity)) {
             throw RPCInvalidResponseException::InvalidDataType("eth_chainId", "Base10/Decimal", "Invalid");
         }
@@ -121,7 +120,6 @@ abstract class AbstractRPCClient extends JSON_RPC_2
             throw RPCInvalidResponseException::InvalidDataType("eth_estimateGas", "Base16", gettype($gasUsed));
         }
 
-        $gasUsed = $this->eth->wei()->fromWei(Integers::Unpack($gasUsed))->eth();
         if (!DataTypes::isNumeric($gasUsed)) {
             throw RPCInvalidResponseException::InvalidDataType("eth_estimateGas", "Base10/Decimal", "Invalid");
         }
@@ -144,7 +142,6 @@ abstract class AbstractRPCClient extends JSON_RPC_2
             throw RPCInvalidResponseException::InvalidDataType("eth_getBlockByHash", "Base16", gettype($block));
         }
 
-        $block = $this->eth->wei()->fromWei(Integers::Unpack($block))->eth();
         if (!DataTypes::isNumeric($block)) {
             throw RPCInvalidResponseException::InvalidDataType("eth_getBlockByHash", "Base10/Decimal", "Invalid");
         }
@@ -168,7 +165,6 @@ abstract class AbstractRPCClient extends JSON_RPC_2
             throw RPCInvalidResponseException::InvalidDataType("eth_getBlockByNumber", "Base16", gettype($block));
         }
 
-        $block = $this->eth->wei()->fromWei(Integers::Unpack($block))->eth();
         if (!DataTypes::isNumeric($block)) {
             throw RPCInvalidResponseException::InvalidDataType("eth_getBlockByNumber", "Base10/Decimal", "Invalid");
         }
@@ -184,19 +180,68 @@ abstract class AbstractRPCClient extends JSON_RPC_2
      * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
      */
-    public function eth_getBlockTransactionCountByHash(string $blockHash)
+    public function eth_getBlockTransactionCountByHash(string $blockHash): int
     {
         $transactionCount = $this->call("eth_getBlockTransactionCountByHash", [$blockHash]);
         if (!DataTypes::isBase16($transactionCount)) {
             throw RPCInvalidResponseException::InvalidDataType("eth_getBlockTransactionCountByHash", "Base16", gettype($transactionCount));
         }
-
-        $transactionCount = $this->eth->wei()->fromWei(Integers::Unpack($transactionCount))->eth();
-        if (!DataTypes::isNumeric($transactionCount)) {
-            throw RPCInvalidResponseException::InvalidDataType("eth_getBlockTransactionCountByHash", "Base10/Decimal", "Invalid");
-//        }
-
-        return $transactionCount;
+        return (int)Integers::Unpack($transactionCount)->value();
     }
+
+    /**
+     * @param int|null $blockParam
+     * @return int
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getBlockTransactionCountByNumber(?int $blockParam)
+    {
+        $transactionCount = $this->call("eth_getBlockTransactionCountByNumber", [$blockParam]);
+        if (!DataTypes::isBase16($transactionCount)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getBlockTransactionCountByHash", "Base16", gettype($transactionCount));
+        }
+        return (int)Integers::Unpack($transactionCount)->value();
+    }
+
+    /**
+     * @param string $address
+     * @param string $blockParam
+     * @return mixed|null
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getCode(string $address, string $blockParam)
+    {
+        $code = $this->call("eth_getCode", [$address, $blockParam]);
+        if (!DataTypes::isBase16($code)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getCode", "Base16", gettype($code));
+        }
+        return $code;
+
+    }
+
+    /**
+     * @param string $address
+     * @param string $storage
+     * @param int|null $blockParam
+     * @return mixed|null
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getStorageAt(string $address, string $storage, string $blockParam)
+    {
+        $code = $this->call("eth_getStorageAt", [$address, $storage, $blockParam]);
+        if (!DataTypes::isBase16($code)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getStorageAt", "Base16", gettype($code));
+        }
+        return $code;
+
+    }
+
+
 
 }
