@@ -66,9 +66,10 @@ class TxBuilder
             ->mapValue(8, "signatureS");
 
         $decoded = $decoder->decode();
+
         $tx = new self($eth);
         $tx->nonce($decoded["nonce"])
-            ->gas($eth->wei()->fromWei($decoded["gasPrice"]), $decoded["gasLimit"])
+            ->gas($eth->wei()->fromWei($decoded["gasPrice"]), intval($decoded["gasLimit"]))
             ->to($eth->getAccount($decoded["to"]))
             ->value($eth->wei()->fromWei($decoded["value"]))
             ->signature(
