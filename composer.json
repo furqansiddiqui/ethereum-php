@@ -17,6 +17,8 @@
     "ext-openssl": "*",
     "ext-gmp": "*",
     "ext-bcmath": "*",
+    "ext-curl": "*",
+    "ext-json": "*",
     "comely-io/data-types": "^1.0.34",
     "furqansiddiqui/ecdsa-php": "^0.2.0",
     "furqansiddiqui/bip39-mnemonic-php": "^0.1.3",
