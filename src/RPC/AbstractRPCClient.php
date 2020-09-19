@@ -20,4 +20,14 @@ namespace FurqanSiddiqui\Ethereum\RPC;
  */
 abstract class AbstractRPCClient extends JSON_RPC_2
 {
+    public function eth_getBalance(string $accountId, string $scope = "latest"): string
+    {
+        if (!in_array($scope, ["latest", "earliest", "pending"])) {
+            throw new \InvalidArgumentException('Invalid block scope; Valid values are "latest", "earliest" and "pending"');
+        }
+
+        $balance = $this->call("eth_getBalance", [$accountId, $scope]);
+        var_dump($balance);
+        return "";
+    }
 }
