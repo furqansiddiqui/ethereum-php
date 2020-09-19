@@ -41,7 +41,7 @@ class RLPEncodedTx
         $this->encodedStr = new Base16($encodedStr);
         $this->encodedStr->readOnly(true);
         $this->signed = substr($encodedStr, -6) !== "018080";
-        $this->hash = new Base16(Keccak::hash(hex2bin($this->encodedStr), 256));
+        $this->hash = new Base16(Keccak::hash(hex2bin($encodedStr), 256));
         $this->hash->readOnly(true);
     }
 

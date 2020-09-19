@@ -61,7 +61,7 @@ class RLP
 
             if ($prefix < 192) { // Long strings
                 $lenBytes = $prefix - 183;
-                $strLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes));
+                $strLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes))->value();
                 $buffer[] = $byteReader->next($byteLen * $strLen);
                 continue;
             }
@@ -81,7 +81,7 @@ class RLP
 
             // Long Array
             $lenBytes = $prefix - 247;
-            $arrayLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes));
+            $arrayLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes))->value();
             $buffer[] = self::Decode($byteReader->next($byteLen * $arrayLen));
         }
 
