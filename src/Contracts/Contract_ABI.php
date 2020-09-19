@@ -50,6 +50,14 @@ class Contract_ABI
     }
 
     /**
+     * @return ABI
+     */
+    public function abi(): ABI
+    {
+        return $this->abi;
+    }
+
+    /**
      * @param Account $addr
      * @return Contract
      */
