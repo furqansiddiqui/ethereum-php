@@ -19,6 +19,7 @@ use FurqanSiddiqui\Ethereum\Accounts\Account;
 use FurqanSiddiqui\Ethereum\KeyPair\HDFactory;
 use FurqanSiddiqui\Ethereum\KeyPair\KeyPairFactory;
 use FurqanSiddiqui\Ethereum\Math\WEIConverter;
+use FurqanSiddiqui\Ethereum\Network\NetworkConfig;
 
 /**
  * Class Ethereum
@@ -33,6 +34,8 @@ class Ethereum
     /** @var string BIP32 MKD HMAC Key */
     public const HD_MKD_HMAC_KEY = "Bitcoin seed";
 
+    /** @var NetworkConfig */
+    private NetworkConfig $network;
     /** @var KeyPairFactory */
     private KeyPairFactory $keyPairFactory;
     /** @var HDFactory */
@@ -45,6 +48,7 @@ class Ethereum
      */
     public function __construct()
     {
+        $this->network = new NetworkConfig();
         $this->keyPairFactory = new KeyPairFactory($this);
         $this->hdFactory = new HDFactory($this);
         $this->weiConverter = new WEIConverter();
@@ -82,5 +86,13 @@ class Ethereum
     public function wei(): WEIConverter
     {
         return $this->weiConverter;
+    }
+
+    /**
+     * @return NetworkConfig
+     */
+    public function networkConfig(): NetworkConfig
+    {
+        return $this->network;
     }
 }

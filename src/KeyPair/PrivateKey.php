@@ -15,7 +15,10 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
 use Comely\DataTypes\Buffer\Base16;
+use FurqanSiddiqui\BIP32\ECDSA\Curves;
 use FurqanSiddiqui\Ethereum\Ethereum;
+use FurqanSiddiqui\Ethereum\Transactions\RLPEncodedTx;
+use FurqanSiddiqui\Ethereum\Transactions\TxBuilder;
 
 /**
  * Class PrivateKey
@@ -53,5 +56,26 @@ class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
         }
 
         return $this->publicKey;
+    }
+
+    /**
+     * @param RLPEncodedTx $serializedTx
+     * @return RLPEncodedTx
+     * @throws \FurqanSiddiqui\Ethereum\Exception\AccountsException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\IncompleteTxException
+     */
+    public function signTransaction(RLPEncodedTx $serializedTx): RLPEncodedTx
+    {
+        $curve = Curves::getInstanceOf($this->getEllipticCurveId());
+        $signature = $curve->sign($this->base16(), $serializedTx->hash());
+        $pointR = $signature->curvePointR();
+
+        // Check parity of Y coord of R
+        $parity = strlen(str_replace("0", "", gmp_strval($pointR->y(), 2))) % 2 === 0 ? 0 : 1;
+        $sigV = $this->eth->networkConfig()->chainId * 2 + (35 + $parity);
+        $txn = TxBuilder::Decode($this->eth, $serializedTx);
+        $txn->signature($sigV, $signature->r(), $signature->s());
+
+        return $txn->serialize();
     }
 }

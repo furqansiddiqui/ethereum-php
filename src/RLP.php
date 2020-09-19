@@ -61,7 +61,7 @@ class RLP
 
             if ($prefix < 192) { // Long strings
                 $lenBytes = $prefix - 183;
-                $strLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes));
+                $strLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes))->value();
                 $buffer[] = $byteReader->next($byteLen * $strLen);
                 continue;
             }
@@ -81,7 +81,7 @@ class RLP
 
             // Long Array
             $lenBytes = $prefix - 247;
-            $arrayLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes));
+            $arrayLen = Integers::Unpack($byteReader->next($byteLen * $lenBytes))->value();
             $buffer[] = self::Decode($byteReader->next($byteLen * $arrayLen));
         }
 
@@ -147,18 +147,27 @@ class RLP
                 $buffer[] = $this->digest($value)->byteArray();
             }
 
-            $arraySize = $this->arrayCountBytes($buffer);
-            if ($arraySize >= 56) {
-                $arraySizeLen = $this->intSize($arraySize);
-                array_unshift($buffer, $this->packInteger(247 + $arraySizeLen), $this->packInteger($arraySize));
-            } else {
-                array_unshift($buffer, $this->packInteger(192 + $arraySize));
-            }
-
-            return $buffer;
+            return $this->completeRLPEncodedObject($buffer);
         }
 
         throw new RLPEncodeException(sprintf('Cannot RLP encode value of type "%s"', ucfirst(gettype($arg))));
+    }
+
+    /**
+     * @param array $obj
+     * @return array
+     */
+    public function completeRLPEncodedObject(array $obj): array
+    {
+        $arraySize = $this->arrayCountBytes($obj);
+        if ($arraySize >= 56) {
+            $arraySizeLen = $this->intSize($arraySize);
+            array_unshift($obj, $this->packInteger(247 + $arraySizeLen), $this->packInteger($arraySize));
+        } else {
+            array_unshift($obj, $this->packInteger(192 + $arraySize));
+        }
+
+        return $obj;
     }
 
     /**
