@@ -62,7 +62,7 @@ class Integers
      */
     public static function HexitPads(string $hex): string
     {
-        if (strlen($hex) % 2 !== 0) {
+        if (strlen($hex) % 2 !== 0 || $hex === "") {
             $hex = "0" . $hex;
         }
 
