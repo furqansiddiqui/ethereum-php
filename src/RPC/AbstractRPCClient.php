@@ -18,6 +18,7 @@ use Comely\DataTypes\DataTypes;
 use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\RPCInvalidResponseException;
 use FurqanSiddiqui\Ethereum\Math\Integers;
+use FurqanSiddiqui\Ethereum\RPC\Models\Block;
 
 /**
  * Class AbstractRPCClient
@@ -40,8 +41,7 @@ abstract class AbstractRPCClient extends JSON_RPC_2
     /**
      * @return int
      * @throws RPCInvalidResponseException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCException
      */
     public function eth_blockNumber(): int
     {
@@ -54,12 +54,32 @@ abstract class AbstractRPCClient extends JSON_RPC_2
     }
 
     /**
+     * @param int|null $height
+     * @return Block|null
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCException
+     */
+    public function eth_getBlock(?int $height = null): ?Block
+    {
+        $height = $height ? "0x" . dechex($height) : "latest";
+        $block = $this->call("eth_getBlockByNumber", [$height, false]);
+        if (is_null($block)) {
+            return null; // Block not found/Out of range
+        }
+
+        if (!is_array($block)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getBlockByNumber", "Object", gettype($block));
+        }
+
+        return new Block($block);
+    }
+
+    /**
      * @param string $accountId
      * @param string $scope
      * @return string
      * @throws RPCInvalidResponseException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCException
      */
     public function eth_getBalance(string $accountId, string $scope = "latest"): string
     {
