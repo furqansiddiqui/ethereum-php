@@ -61,6 +61,12 @@ class Transaction extends AbstractRPCResponseModel
     /** @var array */
     private array $raw;
 
+    /**
+     * Transaction constructor.
+     * @param Ethereum $eth
+     * @param array $obj
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCResponseParseException
+     */
     public function __construct(Ethereum $eth, array $obj)
     {
         // Primary param
@@ -102,7 +108,6 @@ class Transaction extends AbstractRPCResponseModel
 
             $this->$prop = $value;
         }
-
         unset($prop, $value, $nullable);
 
         // From and To
@@ -172,5 +177,13 @@ class Transaction extends AbstractRPCResponseModel
             $this->s,
             $this->v,
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function raw(): array
+    {
+        return $this->raw;
     }
 }

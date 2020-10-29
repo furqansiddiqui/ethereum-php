@@ -20,6 +20,7 @@ use FurqanSiddiqui\Ethereum\Exception\RPCInvalidResponseException;
 use FurqanSiddiqui\Ethereum\Math\Integers;
 use FurqanSiddiqui\Ethereum\RPC\Models\Block;
 use FurqanSiddiqui\Ethereum\RPC\Models\Transaction;
+use FurqanSiddiqui\Ethereum\RPC\Models\TransactionReceipt;
 
 /**
  * Class AbstractRPCClient
@@ -90,6 +91,26 @@ abstract class AbstractRPCClient extends JSON_RPC_2
         }
 
         return new Transaction($this->eth, $txn);
+    }
+
+
+    /**
+     * @param string $txId
+     * @return TransactionReceipt|null
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCException
+     */
+    public function eth_getTransactionReceipt(string $txId): ?TransactionReceipt
+    {
+        $txn = $this->call("eth_getTransactionReceipt", [$txId]);
+        if (is_null($txn)) {
+            return null; // Transaction does not exist
+        }
+
+        if (!is_array($txn)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getTransactionReceipt", "Object", gettype($txn));
+        }
+
+        return new TransactionReceipt($txn);
     }
 
     /**
