@@ -19,6 +19,7 @@ use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\RPCInvalidResponseException;
 use FurqanSiddiqui\Ethereum\Math\Integers;
 use FurqanSiddiqui\Ethereum\RPC\Models\Block;
+use FurqanSiddiqui\Ethereum\RPC\Models\Transaction;
 
 /**
  * Class AbstractRPCClient
@@ -40,7 +41,6 @@ abstract class AbstractRPCClient extends JSON_RPC_2
 
     /**
      * @return int
-     * @throws RPCInvalidResponseException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPCException
      */
     public function eth_blockNumber(): int
@@ -56,7 +56,6 @@ abstract class AbstractRPCClient extends JSON_RPC_2
     /**
      * @param int|null $height
      * @return Block|null
-     * @throws RPCInvalidResponseException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPCException
      */
     public function eth_getBlock(?int $height = null): ?Block
@@ -75,10 +74,28 @@ abstract class AbstractRPCClient extends JSON_RPC_2
     }
 
     /**
+     * @param string $txId
+     * @return Transaction|null
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCException
+     */
+    public function eth_getTransaction(string $txId): ?Transaction
+    {
+        $txn = $this->call("eth_getTransactionByHash", [$txId]);
+        if (is_null($txn)) {
+            return null; // Transaction does not exist
+        }
+
+        if (!is_array($txn)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getTransactionByHash", "Object", gettype($txn));
+        }
+
+        return new Transaction($this->eth, $txn);
+    }
+
+    /**
      * @param string $accountId
      * @param string $scope
      * @return string
-     * @throws RPCInvalidResponseException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPCException
      */
     public function eth_getBalance(string $accountId, string $scope = "latest"): string
