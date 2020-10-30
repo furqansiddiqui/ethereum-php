@@ -29,10 +29,12 @@ use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
  */
 class ABI
 {
-    /** @var null|Method */
+    /** @var Method|null */
     private ?Method $constructor = null;
-    /** @var null|Method */
+    /** @var Method|null */
     private ?Method $fallback = null;
+    /** @var Method|null */
+    private ?Method $receive = null;
     /** @var array */
     private array $functions;
     /** @var array */
@@ -74,6 +76,9 @@ class ABI
                                 break;
                             case "fallback":
                                 $this->fallback = $method;
+                                break;
+                            case "receive":
+                                $this->receive = $method;
                                 break;
                         }
                         break;
