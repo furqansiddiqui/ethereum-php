@@ -32,6 +32,10 @@ class Integers
             $hex = substr($hex, 2);
         }
 
+        if (!$hex) {
+            return new BcNumber(0);
+        }
+
         $hex = self::HexitPads($hex);
         return new BcNumber(gmp_strval(gmp_init($hex, 16), 10));
     }
