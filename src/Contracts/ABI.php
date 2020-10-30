@@ -65,6 +65,7 @@ class ABI
                 switch ($type) {
                     case "constructor":
                     case "function":
+                    case "receive":
                     case "fallback":
                         $method = new Method($block);
                         switch ($method->type) {

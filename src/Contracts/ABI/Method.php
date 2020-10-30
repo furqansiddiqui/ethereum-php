@@ -53,7 +53,7 @@ class Method
 
         // Type
         $type = $method["type"];
-        if (!is_string($type) || !in_array($type, ["function", "constructor", "fallback"])) {
+        if (!is_string($type) || !in_array($type, ["function", "constructor", "fallback", "receive"])) {
             throw new ContractABIException(sprintf('Cannot create method for type "%s"', strval($type)));
         }
 
@@ -83,7 +83,7 @@ class Method
         // Inputs
         $inputs = $method["inputs"] ?? false;
         if (!is_array($inputs)) { // Must be an Array
-            if ($this->type !== "fallback") { // ...unless its type "fallback"
+            if (!in_array($this->type, ["fallback", "receive"])) { // ...unless its type "fallback" or "receive"
                 throw $this->unexpectedParamValue("inputs", "array");
             }
         }
