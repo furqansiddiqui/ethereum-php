@@ -76,7 +76,7 @@ class Contract
      * @param string $str
      * @return string
      */
-    protected function cleanStr(string $str): string
+    public function cleanStr(string $str): string
     {
         return preg_replace('/[^\w.-]/', '', trim($str));
     }
