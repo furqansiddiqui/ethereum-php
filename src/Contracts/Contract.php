@@ -116,6 +116,10 @@ class Contract
             throw RPCInvalidResponseException::InvalidDataType("eth_call", "string", gettype($res));
         }
 
+        if ($res === "0x") {
+            return []; // Return empty Array
+        }
+
         return $this->abi->decodeResponse($func, $res);
     }
 }
