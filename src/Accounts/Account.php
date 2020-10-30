@@ -82,6 +82,14 @@ class Account
     }
 
     /**
+     * @return string
+     */
+    public function bytes(): string
+    {
+        return $this->addr->binary()->raw();
+    }
+
+    /**
      * @param $addr
      * @return Base16
      * @throws AccountsException
