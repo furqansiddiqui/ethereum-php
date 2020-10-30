@@ -78,7 +78,7 @@ class Contract
      */
     protected function cleanStr(string $str): string
     {
-        return preg_replace('/[^\w]/', '', trim($str));
+        return preg_replace('/[^\w.-]/', '', trim($str));
     }
 
     /**
