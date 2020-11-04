@@ -28,6 +28,9 @@ class Integers
      */
     public static function Unpack(string $hex): BcNumber
     {
+        if($hex == null){
+            return new BcNumber(0);
+        }
         if (substr($hex, 0, 2) === "0x") {
             $hex = substr($hex, 2);
         }
