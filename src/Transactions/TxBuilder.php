@@ -68,10 +68,11 @@ class TxBuilder
         $decoded = $decoder->decode();
 
         $tx = new self($eth);
-        $tx->nonce($decoded["nonce"])
+        $tx->nonce((int) $decoded["nonce"])
             ->gas($eth->wei()->fromWei($decoded["gasPrice"]), intval($decoded["gasLimit"]))
             ->to($eth->getAccount($decoded["to"]))
             ->value($eth->wei()->fromWei($decoded["value"]))
+            ->data($decoded["data"])
             ->signature(
                 $decoded["signatureV"],
                 new Base16($decoded["signatureR"]),
