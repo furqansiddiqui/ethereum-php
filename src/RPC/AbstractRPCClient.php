@@ -55,6 +55,23 @@ abstract class AbstractRPCClient extends JSON_RPC_2
     }
 
     /**
+     * @param string $accountId
+     * @return int
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getTransactionCount(string $accountId): int
+    {
+        $txCount = $this->call("eth_getTransactionCount", [$accountId]);
+        if (!DataTypes::isBase16($txCount)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getTransactionCount", "Base16", gettype($txCount));
+        }
+
+        return (int)Integers::Unpack($txCount)->value();
+    }
+
+    /**
      * @param int|null $height
      * @return Block|null
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPCException
