@@ -156,4 +156,21 @@ abstract class AbstractRPCClient extends JSON_RPC_2
 
         return $balance;
     }
+
+    /**
+     * @param string $txData
+     * @return string
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_sendRawTransaction(string $txData): string
+    {
+        $broadcastTx = $this->call("eth_sendRawTransaction", [$txData]);
+        if (!DataTypes::isBase16($broadcastTx)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_sendRawTransaction", "Base16", gettype($broadcastTx));
+        }
+
+        return $broadcastTx;
+    }
 }
