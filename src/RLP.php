@@ -235,7 +235,7 @@ class RLP
         }
 
         $strLenSize = $this->intSize($strLen);
-        array_unshift($strArr, $this->packInteger(183 + $strLenSize), $this->packInteger($strLen));
+        array_unshift($strArr, $this->packInteger(183 + $strLenSize), str_split($this->packInteger($strLen), $byteLen));
         return new RLPEncoded($strArr);
     }
 
