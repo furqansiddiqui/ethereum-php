@@ -246,7 +246,7 @@ class RLP
     public function encodeInteger($dec): RLPEncoded
     {
         $dec = Integers::checkValidInt($dec);
-        if ($dec === 0) {
+        if ($dec == 0) {
             return new RLPEncoded([$this->packInteger(128)]);
         }
 
