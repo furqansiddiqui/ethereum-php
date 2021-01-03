@@ -68,7 +68,7 @@ class TxBuilder
         $decoded = $decoder->decode();
 
         $tx = new self($eth);
-        $tx->nonce($decoded["nonce"])
+        $tx->nonce(intval($decoded["nonce"]))
             ->gas($eth->wei()->fromWei($decoded["gasPrice"]), intval($decoded["gasLimit"]));
 
         if ($decoded["to"]) {
