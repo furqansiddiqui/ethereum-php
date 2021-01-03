@@ -75,6 +75,8 @@ class TxBuilder
             $tx->to($eth->getAccount($decoded["to"]));
         }
 
+        $tx->data($decoded["data"]);
+
         $tx->value($eth->wei()->fromWei($decoded["value"]))
             ->signature(
                 $decoded["signatureV"],
