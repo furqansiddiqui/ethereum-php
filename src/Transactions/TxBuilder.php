@@ -33,8 +33,8 @@ class TxBuilder
     private WEIValue $gasPrice;
     /** @var int */
     private int $gasLimit;
-    /** @var Account */
-    private Account $to;
+    /** @var Account|null */
+    private ?Account $to = null;
     /** @var WEIValue */
     private WEIValue $value;
     /** @var string|null */
@@ -69,9 +69,13 @@ class TxBuilder
 
         $tx = new self($eth);
         $tx->nonce($decoded["nonce"])
-            ->gas($eth->wei()->fromWei($decoded["gasPrice"]), intval($decoded["gasLimit"]))
-            ->to($eth->getAccount($decoded["to"]))
-            ->value($eth->wei()->fromWei($decoded["value"]))
+            ->gas($eth->wei()->fromWei($decoded["gasPrice"]), intval($decoded["gasLimit"]));
+
+        if ($decoded["to"]) {
+            $tx->to($eth->getAccount($decoded["to"]));
+        }
+
+        $tx->value($eth->wei()->fromWei($decoded["value"]))
             ->signature(
                 $decoded["signatureV"],
                 new Base16($decoded["signatureR"]),
@@ -182,11 +186,8 @@ class TxBuilder
         $txObj->encodeInteger($this->gasLimit);
 
         // To
-        if (!isset($this->to)) {
-            throw new IncompleteTxException('To/Payee address is not set');
-        }
-
-        $txObj->encodeHexString($this->to->getAddress());
+        $payee = isset($this->to) ? $this->to->getAddress() : "";
+        $txObj->encodeHexString($payee);
 
         // Value
         $txObj->encodeInteger($this->value->wei());
@@ -199,6 +200,6 @@ class TxBuilder
         $txObj->encodeHexString($this->signature["r"]);
         $txObj->encodeHexString($this->signature["s"]);
 
-        return new RLPEncodedTx($txObj->getRLPEncoded($rlp));
+        return new RLPEncodedTx($txObj->getRLPEncoded($rlp)->toString());
     }
 }

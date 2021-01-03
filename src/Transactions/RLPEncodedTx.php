@@ -16,7 +16,6 @@ namespace FurqanSiddiqui\Ethereum\Transactions;
 
 use Comely\DataTypes\Buffer\Base16;
 use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
-use FurqanSiddiqui\Ethereum\RLP\RLPEncoded;
 
 /**
  * Class RLPEncodedTx
@@ -31,17 +30,17 @@ class RLPEncodedTx
     /** @var Base16 */
     private Base16 $hash;
 
+
     /**
      * RLPEncodedTx constructor.
-     * @param RLPEncoded $encoded
+     * @param string $encoded
      */
-    public function __construct(RLPEncoded $encoded)
+    public function __construct(string $encoded)
     {
-        $encodedStr = $encoded->toString();
-        $this->encodedStr = new Base16($encodedStr);
+        $this->encodedStr = new Base16($encoded);
         $this->encodedStr->readOnly(true);
-        $this->signed = substr($encodedStr, -6) !== "018080";
-        $this->hash = new Base16(Keccak::hash(hex2bin($encodedStr), 256));
+        $this->signed = substr($encoded, -6) !== "018080";
+        $this->hash = new Base16(Keccak::hash($this->encodedStr->binary()->raw(), 256));
         $this->hash->readOnly(true);
     }
 
