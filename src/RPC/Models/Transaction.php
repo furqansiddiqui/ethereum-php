@@ -134,7 +134,9 @@ class Transaction extends AbstractRPCResponseModel
         ];
 
         foreach ($decProps as $decProp) {
-            $this->$decProp = Integers::Unpack($this->$decProp)->value();
+            if($this->$decProp) {
+                $this->$decProp = Integers::Unpack($this->$decProp)->value();
+            }
         }
 
         // Finalise
