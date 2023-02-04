@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\Exception;
 
 /**
- * Class AccountsException
+ * Class BadWEIAmountException
  * @package FurqanSiddiqui\Ethereum\Exception
  */
-class AccountsException extends EthereumException
+class BadWEIAmountException extends EthereumException
 {
 }
