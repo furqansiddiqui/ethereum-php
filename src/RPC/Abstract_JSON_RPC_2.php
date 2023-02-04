@@ -72,12 +72,12 @@ abstract class Abstract_JSON_RPC_2
     /**
      * @param string $method
      * @param array|null $params
-     * @return bool|int|float|array|null
+     * @return bool|int|float|array|string|null
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_RequestException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_ResponseException
      */
-    public function apiCall(string $method, array $params = null): null|bool|int|float|array
+    public function apiCall(string $method, array $params = null): null|bool|int|float|array|string
     {
         $ch = curl_init(); // Init cURL handler
         $serverURL = $this->getServerURL();
