@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\Exception;
 
 /**
- * Class ContractABIException
+ * Class Contract_ABIException
  * @package FurqanSiddiqui\Ethereum\Exception
  */
-class ContractABIException extends ContractsException
+class Contract_ABIException extends ContractsException
 {
 }
