@@ -14,13 +14,11 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\DataTypes\Buffer\Base16;
-use Comely\DataTypes\Buffer\Binary;
-use Comely\DataTypes\DataTypes;
-use FurqanSiddiqui\BIP32\ECDSA\Curves;
+use Comely\Buffer\AbstractByteArray;
+use Comely\Buffer\Bytes32;
 use FurqanSiddiqui\BIP39\Mnemonic;
+use FurqanSiddiqui\ECDSA\KeyPair;
 use FurqanSiddiqui\Ethereum\Ethereum;
-use FurqanSiddiqui\Ethereum\Exception\KeyPairException;
 
 /**
  * Class KeyPairFactory
@@ -28,91 +26,55 @@ use FurqanSiddiqui\Ethereum\Exception\KeyPairException;
  */
 class KeyPairFactory
 {
-    /** @var Ethereum */
-    private Ethereum $eth;
-
     /**
      * KeyPairFactory constructor.
      * @param Ethereum $eth
      */
-    public function __construct(Ethereum $eth)
+    public function __construct(public readonly Ethereum $eth)
     {
-        $this->eth = $eth;
     }
 
     /**
-     * @return PrivateKey
-     * @throws KeyPairException
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\BaseKeyPair
+     * @throws \FurqanSiddiqui\BIP32\Exception\KeyPairException
+     * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
      */
-    public function generateSecurePrivateKey(): PrivateKey
+    public function generateSecurePrivateKey(): BaseKeyPair
     {
-        $byteLength = Ethereum::PRIVATE_KEY_BITS / 8;
-
-        try {
-            $randomBytes = random_bytes($byteLength);
-        } catch (\Exception $e) {
-            trigger_error($e->getMessage(), E_USER_WARNING);
-            throw new KeyPairException('Failed to generate cryptographically secure pseudo-random bytes');
-        }
-
-        $entropy = (new Binary($randomBytes))->base16();
-        return new PrivateKey($this->eth, $entropy, null);
+        return $this->privateKeyFromEntropy($this->eth->bip32->generateSecureEntropy());
     }
 
     /**
-     * @param $entropy
-     * @return PrivateKey
+     * @param \Comely\Buffer\Bytes32 $entropy
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\BaseKeyPair
+     * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
      */
-    public function privateKeyFromEntropy($entropy): PrivateKey
+    public function privateKeyFromEntropy(Bytes32 $entropy): BaseKeyPair
     {
-        if (!$entropy instanceof Base16) {
-            if (!is_string($entropy) || !DataTypes::isBase16($entropy)) {
-                throw new \InvalidArgumentException(
-                    'Private key entropy must be Hexadecimal string or instance of Binary buffer'
-                );
-            }
-
-            $entropy = new Base16($entropy);
-        }
-
-        return new PrivateKey($this->eth, $entropy, null);
+        $pK = new PrivateKey($this->eth, new KeyPair($this->eth->ecc, $entropy));
+        return new BaseKeyPair($this->eth, $pK);
     }
 
     /**
-     * @param Mnemonic $mnemonic
+     * @param \FurqanSiddiqui\BIP39\Mnemonic $mnemonic
      * @param string|null $passphrase
-     * @return PrivateKey
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\BaseKeyPair
+     * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
      */
-    public function privateKeyFromMnemonic(Mnemonic $mnemonic, ?string $passphrase = null): PrivateKey
+    public function privateKeyFromMnemonic(Mnemonic $mnemonic, ?string $passphrase = null): BaseKeyPair
     {
-        $byteLength = Ethereum::PRIVATE_KEY_BITS / 4;
-        $seed = $mnemonic->generateSeed($passphrase, $byteLength);
-        if (!$seed instanceof Base16) {
-            $seed = new Base16($seed);
-        }
-
-        return new PrivateKey($this->eth, $seed, null);
+        $entropy = new Bytes32($mnemonic->generateSeed($passphrase, 32));
+        return $this->privateKeyFromEntropy($entropy);
     }
 
     /**
-     * @param Base16 $publicKey
-     * @return PublicKey
-     * @throws \FurqanSiddiqui\BIP32\Exception\PublicKeyException
+     * @param \Comely\Buffer\AbstractByteArray $publicKey
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\PublicKey
+     * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\KeyPairException
      */
-    public function publicKeyFromUncompressed(Base16 $publicKey): PublicKey
+    public function publicKeyFromUncompressed(AbstractByteArray $publicKey): PublicKey
     {
-        $curve = Curves::getInstanceOf(Ethereum::ECDSA_CURVE);
-        return new PublicKey($this->eth, null, $curve, $publicKey, false);
-    }
-
-    /**
-     * @param Base16 $publicKey
-     * @return PublicKey
-     * @throws \FurqanSiddiqui\BIP32\Exception\PublicKeyException
-     */
-    public function publicKeyFromCompressed(Base16 $publicKey): PublicKey
-    {
-        $curve = Curves::getInstanceOf(Ethereum::ECDSA_CURVE);
-        return new PublicKey($this->eth, null, $curve, $publicKey, true);
+        return new PublicKey($this->eth, \FurqanSiddiqui\ECDSA\ECC\PublicKey::fromDER($publicKey));
     }
 }

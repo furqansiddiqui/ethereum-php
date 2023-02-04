@@ -14,78 +14,85 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\DataTypes\Buffer\Base16;
-use Comely\DataTypes\Buffer\Binary;
-use FurqanSiddiqui\BIP32\Extend\ExtendedKeyInterface;
-use FurqanSiddiqui\BIP32\ExtendedKey;
+use Comely\Buffer\Bytes32;
+use FurqanSiddiqui\BIP32\BIP32;
+use FurqanSiddiqui\BIP32\Buffers\BIP32_Provider;
+use FurqanSiddiqui\BIP32\Buffers\Bits32;
+use FurqanSiddiqui\BIP32\Buffers\SerializedBIP32Key;
+use FurqanSiddiqui\BIP32\KeyPair\ExtendedKeyPair;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
  * Class KeyPair
  * @package FurqanSiddiqui\Ethereum\KeyPair
  */
-class HDKey extends ExtendedKey
+class HDKey extends ExtendedKeyPair
 {
-    /** @var Ethereum */
-    private Ethereum $eth;
+    /** @var \FurqanSiddiqui\Ethereum\Ethereum */
+    public readonly Ethereum $eth;
 
     /**
-     * KeyPair constructor.
-     * @param Ethereum $eth
-     * @param Binary $seed
-     * @param ExtendedKeyInterface|null $parent
-     * @param Base16|null $childNumber
-     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
+     * @param \FurqanSiddiqui\Ethereum\Ethereum|\FurqanSiddiqui\BIP32\Buffers\BIP32_Provider $bip32
+     * @param \FurqanSiddiqui\BIP32\Buffers\SerializedBIP32Key $ser
+     * @return static
+     * @throws \FurqanSiddiqui\BIP32\Exception\UnserializeBIP32KeyException
      */
-    public function __construct(Ethereum $eth, Binary $seed, ?ExtendedKeyInterface $parent = null, ?Base16 $childNumber = null)
+    public static function Unserialize(Ethereum|BIP32_Provider $bip32, SerializedBIP32Key $ser): static
     {
-        $this->eth = $eth;
-        parent::__construct($seed, $parent, $childNumber);
+        if (!$bip32 instanceof Ethereum) {
+            throw new \InvalidArgumentException('Expected instead of Ethereum for Unserialize method');
+        }
 
-        $this->set("curve", Ethereum::ECDSA_CURVE);
+        $hdKey = parent::Unserialize($bip32->bip32, $ser);
+        $hdKey->eth = $bip32;
+        return $hdKey;
     }
 
     /**
-     * @param $path
-     * @return HDKey
-     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
+     * @param \FurqanSiddiqui\BIP32\BIP32 $bip32
+     * @param \FurqanSiddiqui\Ethereum\KeyPair\PublicKey|\FurqanSiddiqui\Ethereum\KeyPair\PrivateKey $key
+     * @param int $depth
+     * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $childNum
+     * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $parentPubFp
+     * @param \Comely\Buffer\Bytes32 $chainCode
+     * @param \FurqanSiddiqui\Ethereum\Ethereum|null $eth
      */
-    public function derivePath($path): ExtendedKeyInterface
+    public function __construct(
+        BIP32                $bip32,
+        PublicKey|PrivateKey $key,
+        int                  $depth,
+        Bits32               $childNum,
+        Bits32               $parentPubFp,
+        Bytes32              $chainCode,
+        ?Ethereum            $eth = null,
+    )
     {
-        return parent::derivePath($path);
+        parent::__construct($bip32, $key, $depth, $childNum, $parentPubFp, $chainCode);
+        if ($eth) {
+            $this->eth = $eth;
+        }
     }
 
     /**
      * @param int $index
      * @param bool $isHardened
-     * @return ExtendedKeyInterface
+     * @return $this
      * @throws \FurqanSiddiqui\BIP32\Exception\ChildKeyDeriveException
      * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
      */
-    public function derive(int $index, bool $isHardened = false): ExtendedKeyInterface
+    public function derive(int $index, bool $isHardened = false): static
     {
-        $extendedKey = parent::derive($index, $isHardened);
-        return new HDKey($this->eth, $extendedKey->raw(), $this, $extendedKey->childNumber());
+        return parent::derive($index, $isHardened);
     }
 
     /**
-     * @return PrivateKey
+     * @param $path
+     * @return $this
+     * @throws \FurqanSiddiqui\BIP32\Exception\ChildKeyDeriveException
+     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
      */
-    public function privateKey(): PrivateKey
+    public function derivePath($path): static
     {
-        if (!$this->privateKeyInstance instanceof PrivateKey) {
-            $this->privateKeyInstance = new PrivateKey($this->eth, $this->privateKey, $this);
-        }
-
-        return $this->privateKeyInstance;
-    }
-
-    /**
-     * @return PublicKey
-     * @throws \FurqanSiddiqui\BIP32\Exception\PublicKeyException
-     */
-    public function publicKey(): PublicKey
-    {
-        return $this->privateKey()->publicKey();
+        return parent::derivePath($path);
     }
 }

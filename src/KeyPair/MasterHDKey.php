@@ -14,7 +14,10 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\DataTypes\Buffer\Base16;
+use Comely\Buffer\Bytes32;
+use FurqanSiddiqui\BIP32\BIP32;
+use FurqanSiddiqui\BIP32\Buffers\Bits32;
+use FurqanSiddiqui\BIP32\Exception\UnserializeBIP32KeyException;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
@@ -24,23 +27,29 @@ use FurqanSiddiqui\Ethereum\Ethereum;
 class MasterHDKey extends HDKey
 {
     /**
-     * MasterHDKey constructor.
-     * @param Ethereum $eth
-     * @param Base16 $seed
-     * @param string|null $hmacKey
-     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
+     * @param \FurqanSiddiqui\BIP32\BIP32 $bip32
+     * @param \FurqanSiddiqui\Ethereum\KeyPair\PublicKey|\FurqanSiddiqui\Ethereum\KeyPair\PrivateKey $key
+     * @param int $depth
+     * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $childNum
+     * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $parentPubFp
+     * @param \Comely\Buffer\Bytes32 $chainCode
+     * @param \FurqanSiddiqui\Ethereum\Ethereum|null $eth
+     * @throws \FurqanSiddiqui\BIP32\Exception\UnserializeBIP32KeyException
      */
-    public function __construct(Ethereum $eth, Base16 $seed, ?string $hmacKey = null)
+    public function __construct(
+        BIP32                $bip32,
+        PublicKey|PrivateKey $key,
+        int                  $depth,
+        Bits32               $childNum,
+        Bits32               $parentPubFp,
+        Bytes32              $chainCode,
+        ?Ethereum            $eth = null
+    )
     {
-        $binary = $seed->binary();
-        if (!in_array($binary->size()->bits(), [128, 256, 512])) {
-            throw new \LengthException('Base16 seed must be 128, 256 or 512-bit long');
+        if (!$childNum->isZeroBytes() || !$parentPubFp->isZeroBytes() || $depth !== 0) {
+            throw new UnserializeBIP32KeyException('Cannot unserialize child key as MasterHDKey');
         }
 
-        if ($hmacKey) {
-            $binary = $binary->hash()->hmac("sha512", $hmacKey);
-        }
-
-        parent::__construct($eth, $binary, null, null);
+        parent::__construct($bip32, $key, $depth, $childNum, $parentPubFp, $chainCode, $eth);
     }
 }

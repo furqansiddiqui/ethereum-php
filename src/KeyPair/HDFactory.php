@@ -14,9 +14,13 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\DataTypes\Buffer\Base16;
-use Comely\DataTypes\DataTypes;
+use Comely\Buffer\AbstractByteArray;
+use Comely\Buffer\Bytes32;
+use FurqanSiddiqui\BIP32\Buffers\Bits32;
+use FurqanSiddiqui\BIP32\Buffers\Bits512;
+use FurqanSiddiqui\BIP32\Buffers\SerializedBIP32Key;
 use FurqanSiddiqui\BIP39\Mnemonic;
+use FurqanSiddiqui\ECDSA\KeyPair;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
@@ -25,69 +29,97 @@ use FurqanSiddiqui\Ethereum\Ethereum;
  */
 class HDFactory
 {
-    /** @var Ethereum */
-    private Ethereum $eth;
-    /** @var string|null */
-    private ?string $hmacKey = null;
-
     /**
      * HDFactory constructor.
      * @param Ethereum $eth
      */
-    public function __construct(Ethereum $eth)
+    public function __construct(public readonly Ethereum $eth)
     {
-        $this->eth = $eth;
     }
 
     /**
-     * @param string $key
-     * @return $this
+     * @param \FurqanSiddiqui\BIP32\Buffers\SerializedBIP32Key|\Comely\Buffer\AbstractByteArray $ser
+     * @param bool $isMaster
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\HDKey|\FurqanSiddiqui\Ethereum\KeyPair\MasterHDKey
+     * @throws \FurqanSiddiqui\BIP32\Exception\UnserializeBIP32KeyException
      */
-    public function setHMACKey(string $key = "Bitcoin seed"): self
+    public function unserialize(SerializedBIP32Key|AbstractByteArray $ser, bool $isMaster = false): HDKey|MasterHDKey
     {
-        $this->hmacKey = $key ? $key : null;
-        return $this;
-    }
-
-    /**
-     * @param $seed
-     * @return MasterHDKey
-     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
-     */
-    public function useEntropyAsSeed($seed): MasterHDKey
-    {
-        if (!$seed instanceof Base16) {
-            if (!is_string($seed) || !DataTypes::isBase16($seed)) {
-                throw new \InvalidArgumentException(
-                    'MKD/CKD entropy must be Hexadecimal string or instance of Binary buffer'
-                );
-            }
-
-            $seed = new Base16($seed);
+        if (!$ser instanceof SerializedBIP32Key) {
+            $ser = new SerializedBIP32Key($ser->raw());
         }
 
-        return new MasterHDKey($this->eth, $seed, $this->hmacKey ?? Ethereum::HD_MKD_HMAC_KEY);
+        return $isMaster ? MasterHDKey::Unserialize($this->eth, $ser) : HDKey::Unserialize($this->eth, $ser);
     }
 
     /**
-     * @param Mnemonic $mnemonic
-     * @return MasterHDKey
-     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
+     * @param \Comely\Buffer\AbstractByteArray $prv
+     * @param string|null $overrideSeed
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\MasterHDKey
+     * @throws \FurqanSiddiqui\BIP32\Exception\UnserializeBIP32KeyException
+     * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
      */
-    public function useMnemonicEntropy(Mnemonic $mnemonic): MasterHDKey
+    public function masterKeyFromEntropy(AbstractByteArray $prv, ?string $overrideSeed = null): MasterHDKey
     {
-        return $this->useEntropyAsSeed($mnemonic->entropy);
+        return $this->masterKeyFromSeed($this->eth->bip32->hmacEntropy($prv, $overrideSeed));
     }
 
     /**
-     * @param Mnemonic $mnemonic
-     * @param string|null $passphrase
-     * @return MasterHDKey
-     * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
+     * @param \FurqanSiddiqui\BIP32\Buffers\Bits512 $seed
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\MasterHDKey
+     * @throws \FurqanSiddiqui\BIP32\Exception\UnserializeBIP32KeyException
+     * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
      */
-    public function useMnemonicSeed(Mnemonic $mnemonic, ?string $passphrase = null): MasterHDKey
+    public function masterKeyFromSeed(Bits512 $seed): MasterHDKey
     {
-        $seed = $mnemonic->generateSeed($passphrase);
-        return new MasterHDKey($this->eth, new Base16($seed), null); // Not applying HMAC
+        $seed = $seed->raw();
+        return new MasterHDKey(
+            $this->eth->bip32,
+            new PrivateKey($this->eth, new KeyPair($this->eth->ecc, new Bytes32(substr($seed, 0, 32)))),
+            0,
+            Bits32::fromInteger(0),
+            new Bits32(str_repeat("\0", 4)),
+            new Bytes32(substr($seed, 32)),
+            $this->eth
+        );
+    }
+
+    /**
+     * @param \FurqanSiddiqui\BIP39\Mnemonic $mnemonic
+     * @param string $passphrase
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\MasterHDKey
+     * @throws \FurqanSiddiqui\BIP32\Exception\UnserializeBIP32KeyException
+     * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
+     */
+    public function masterKeyFromMnemonic(Mnemonic $mnemonic, string $passphrase = ""): MasterHDKey
+    {
+        return $this->masterKeyFromSeed(new Bits512($mnemonic->generateSeed($passphrase)));
+    }
+
+    /**
+     * @param \FurqanSiddiqui\Ethereum\KeyPair\PrivateKey|\FurqanSiddiqui\Ethereum\KeyPair\PublicKey $key
+     * @param \Comely\Buffer\Bytes32 $chainCode
+     * @param int $depth
+     * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $childNum
+     * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $parentPubFp
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\HDKey
+     */
+    public function childKey(
+        PrivateKey|PublicKey $key,
+        Bytes32              $chainCode,
+        int                  $depth,
+        Bits32               $childNum,
+        Bits32               $parentPubFp
+    ): HDKey
+    {
+        return new HDKey(
+            $this->eth->bip32,
+            $key,
+            $depth,
+            $childNum,
+            $parentPubFp,
+            $chainCode,
+            $this->eth
+        );
     }
 }

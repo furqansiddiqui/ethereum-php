@@ -14,8 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\DataTypes\Buffer\Base16;
-use FurqanSiddiqui\BIP32\ECDSA\Curves;
+use FurqanSiddiqui\ECDSA\KeyPair;
 use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Transactions\RLPEncodedTx;
 use FurqanSiddiqui\Ethereum\Transactions\TxBuilder;
@@ -26,36 +25,16 @@ use FurqanSiddiqui\Ethereum\Transactions\TxBuilder;
  */
 class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
 {
-    /** @var Ethereum */
-    private Ethereum $eth;
-
     /**
-     * PrivateKey constructor.
-     * @param Ethereum $eth
-     * @param Base16 $entropy
-     * @param HDKey|null $extendedKey
+     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
+     * @param \FurqanSiddiqui\ECDSA\KeyPair $eccPrivateKey
      */
-    public function __construct(Ethereum $eth, Base16 $entropy, ?HDKey $extendedKey = null)
+    public function __construct(
+        public readonly Ethereum $eth,
+        KeyPair                  $eccPrivateKey
+    )
     {
-        $this->eth = $eth;
-        parent::__construct($entropy, $extendedKey);
-
-        if (!$extendedKey) {
-            $this->set("curve", Ethereum::ECDSA_CURVE);
-        }
-    }
-
-    /**
-     * @return PublicKey
-     * @throws \FurqanSiddiqui\BIP32\Exception\PublicKeyException
-     */
-    public function publicKey(): PublicKey
-    {
-        if (!$this->publicKey instanceof PublicKey) {
-            $this->publicKey = new PublicKey($this->eth, $this);
-        }
-
-        return $this->publicKey;
+        parent::__construct($this->eth->bip32, $eccPrivateKey);
     }
 
     /**

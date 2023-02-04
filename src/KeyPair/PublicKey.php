@@ -14,12 +14,10 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\DataTypes\Buffer\Base16;
-use Comely\DataTypes\Buffer\Binary;
-use FurqanSiddiqui\BIP32\Extend\PrivateKeyInterface;
-use FurqanSiddiqui\ECDSA\ECC\EllipticCurveInterface;
-use FurqanSiddiqui\Ethereum\Accounts\Account;
+use Comely\Buffer\Buffer;
+use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Ethereum;
+use FurqanSiddiqui\Ethereum\Exception\KeyPairException;
 use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
 
 /**
@@ -28,59 +26,36 @@ use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
  */
 class PublicKey extends \FurqanSiddiqui\BIP32\KeyPair\PublicKey
 {
-    /** @var Ethereum */
-    private Ethereum $eth;
-    /** @var Account|null */
-    private ?Account $account = null;
+    /** @var \FurqanSiddiqui\Ethereum\Buffers\EthereumAddress|null */
+    private ?EthereumAddress $address = null;
 
     /**
-     * PublicKey constructor.
-     * @param Ethereum $eth
-     * @param PrivateKeyInterface|null $privateKey
-     * @param EllipticCurveInterface|null $curve
-     * @param Base16|null $publicKey
-     * @param bool|null $pubKeyArgIsCompressed
-     * @throws \FurqanSiddiqui\BIP32\Exception\PublicKeyException
+     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
+     * @param \FurqanSiddiqui\ECDSA\ECC\PublicKey $eccPublicKey
+     * @throws \FurqanSiddiqui\Ethereum\Exception\KeyPairException
      */
-    public function __construct(Ethereum $eth, ?PrivateKeyInterface $privateKey, ?EllipticCurveInterface $curve = null, ?Base16 $publicKey = null, ?bool $pubKeyArgIsCompressed = null)
+    public function __construct(
+        public readonly Ethereum            $eth,
+        \FurqanSiddiqui\ECDSA\ECC\PublicKey $eccPublicKey
+    )
     {
-        $this->eth = $eth;
-        parent::__construct($privateKey, $curve, $publicKey, $pubKeyArgIsCompressed);
+        parent::__construct($this->eth->bip32, $eccPublicKey);
+        if (!$eccPublicKey->y) {
+            throw new KeyPairException('Cannot instantiate public key with Y coordinate');
+        }
     }
 
     /**
-     * @return Ethereum
+     * @return \FurqanSiddiqui\Ethereum\Buffers\EthereumAddress
      */
-    public function eth(): Ethereum
+    public function address(): EthereumAddress
     {
-        return $this->eth;
-    }
-
-    /**
-     * @return Account
-     * @throws \FurqanSiddiqui\Ethereum\Exception\AccountsException
-     */
-    public function getAccount(): Account
-    {
-        if (!$this->account) {
-            $this->account = new Account($this->eth, $this->getAccountAddress());
+        if ($this->address) {
+            return $this->address;
         }
 
-        return $this->account;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAccountAddress(): string
-    {
-        $pubKeyX = $this->eccPublicKeyObj->x();
-        $pubKeyY = $this->eccPublicKeyObj->y();
-        $pubKey = (new Binary())
-            ->append($pubKeyX->binary())
-            ->append($pubKeyY->binary());
-
-        $keccakHash = new Binary(Keccak::hash($pubKey->raw(), 256, true));
-        return $keccakHash->substr(-20)->base16()->hexits(true);
+        $bn = Buffer::fromBase16($this->eccPublicKey->x . $this->eccPublicKey->y);
+        $this->address = new EthereumAddress(substr(Keccak::hash($bn->raw(), 256, true), -20));
+        return $this->address;
     }
 }

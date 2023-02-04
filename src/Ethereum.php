@@ -14,33 +14,26 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum;
 
-use FurqanSiddiqui\BIP32\ECDSA\Curves;
-use FurqanSiddiqui\Ethereum\Accounts\Account;
+use FurqanSiddiqui\BIP32\BIP32;
+use FurqanSiddiqui\BIP32\Buffers\BIP32_Provider;
+use FurqanSiddiqui\ECDSA\ECC\EllipticCurveInterface;
+use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Contracts\ABI_Factory;
 use FurqanSiddiqui\Ethereum\KeyPair\HDFactory;
 use FurqanSiddiqui\Ethereum\KeyPair\KeyPairFactory;
 use FurqanSiddiqui\Ethereum\Math\WEIConverter;
-use FurqanSiddiqui\Ethereum\Network\NetworkConfig;
+use FurqanSiddiqui\Ethereum\Networks\AbstractNetworkConfig;
 
 /**
  * Class Ethereum
  * @package FurqanSiddiqui\Ethereum
  */
-class Ethereum
+class Ethereum implements BIP32_Provider
 {
-    /** @var int ECDSA/ECC curve identifier */
-    public const ECDSA_CURVE = Curves::SECP256K1;
-    /** @var int Fixed length of private keys in bits */
-    public const PRIVATE_KEY_BITS = 256;
-    /** @var string BIP32 MKD HMAC Key */
-    public const HD_MKD_HMAC_KEY = "Bitcoin seed";
+    /** @var \FurqanSiddiqui\BIP32\BIP32 */
+    public readonly BIP32 $bip32;
 
-    /** @var NetworkConfig */
-    private NetworkConfig $network;
-    /** @var KeyPairFactory */
-    private KeyPairFactory $keyPairFactory;
-    /** @var HDFactory */
-    private HDFactory $hdFactory;
+
     /** @var WEIConverter */
     private WEIConverter $weiConverter;
     /** @var ABI_Factory */
@@ -49,21 +42,27 @@ class Ethereum
     /**
      * Ethereum constructor.
      */
-    public function __construct()
+    public function __construct(
+        public readonly EllipticCurveInterface $ecc,
+        public readonly AbstractNetworkConfig  $network,
+        public readonly KeyPairFactory         $keyPair,
+        public readonly HDFactory              $hdFactory
+    )
     {
-        $this->network = new NetworkConfig();
-        $this->keyPairFactory = new KeyPairFactory($this);
-        $this->hdFactory = new HDFactory($this);
+        $this->bip32 = new BIP32($this->ecc, $this->network);
+
         $this->weiConverter = new WEIConverter();
         $this->contracts = new ABI_Factory();
     }
 
     /**
-     * @return KeyPairFactory
+     * @param string $addr
+     * @return \FurqanSiddiqui\Ethereum\Buffers\EthereumAddress
+     * @throws \FurqanSiddiqui\Ethereum\Exception\InvalidAddressException
      */
-    public function keyPairs(): KeyPairFactory
+    public function getAddress(string $addr): EthereumAddress
     {
-        return $this->keyPairFactory;
+        return EthereumAddress::fromString($addr, EthereumAddress::hasChecksum($addr));
     }
 
     /**
@@ -74,15 +73,6 @@ class Ethereum
         return $this->hdFactory;
     }
 
-    /**
-     * @param $addr
-     * @return Account
-     * @throws Exception\AccountsException
-     */
-    public function getAccount($addr): Account
-    {
-        return new Account($this, $addr);
-    }
 
     /**
      * @return WEIConverter
@@ -101,9 +91,9 @@ class Ethereum
     }
 
     /**
-     * @return NetworkConfig
+     * @return AbstractNetworkConfig
      */
-    public function networkConfig(): NetworkConfig
+    public function networkConfig(): AbstractNetworkConfig
     {
         return $this->network;
     }
