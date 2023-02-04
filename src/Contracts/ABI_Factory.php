@@ -14,7 +14,9 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Contracts;
 
+use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Exception\ContractsException;
+use FurqanSiddiqui\Ethereum\RPC\Abstract_RPC_Client;
 
 /**
  * Class ABI_Factory
@@ -24,35 +26,57 @@ class ABI_Factory
 {
     /**
      * @param string $filePath
-     * @return Contract_ABI
-     * @throws ContractsException
+     * @param bool $validate
+     * @param array $errors
+     * @return \FurqanSiddiqui\Ethereum\Contracts\Contract
+     * @throws \FurqanSiddiqui\Ethereum\Exception\Contract_ABIException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\ContractsException
+     * @throws \Throwable
      */
-    public function fromFile(string $filePath): Contract_ABI
+    public function fromJSONFile(string $filePath, bool $validate, array &$errors): Contract
     {
         $fileBasename = basename($filePath);
         if (!file_exists($filePath)) {
-            throw new ContractsException(sprintf('ABI json file "%s" not found', $fileBasename));
+            throw new ContractsException(sprintf('Contract ABI JSON file "%s" not found', $fileBasename));
+        } elseif (!is_readable($filePath)) {
+            throw new ContractsException(sprintf('Contract ABI JSON file "%s" is not readable', $fileBasename));
         }
 
-        $source = @file_get_contents($filePath);
+        $source = file_get_contents($filePath);
         if (!$source) {
-            throw new ContractsException(sprintf('Failed to read ABI file "%s"', $fileBasename));
+            throw new ContractsException(sprintf('Failed to read contract ABI file "%s"', $fileBasename));
         }
 
-        $decoded = json_decode($source, true);
-        if (!is_array($decoded)) {
-            throw new ContractsException(sprintf('Failed to JSON decode ABI file "%s"', $fileBasename));
+        try {
+            $decoded = json_decode($source, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            throw new ContractsException(sprintf('Failed to JSON decode contract ABI file "%s"', $fileBasename));
         }
 
-        return $this->useArray($decoded);
+        return $this->fromArray($decoded, $validate, $errors);
     }
 
     /**
      * @param array $abi
-     * @return Contract_ABI
+     * @param bool $validate
+     * @param array $errors
+     * @return \FurqanSiddiqui\Ethereum\Contracts\Contract
+     * @throws \FurqanSiddiqui\Ethereum\Exception\Contract_ABIException
+     * @throws \Throwable
      */
-    public function useArray(array $abi): Contract_ABI
+    public function fromArray(array $abi, bool $validate, array &$errors): Contract
     {
-        return new Contract_ABI(new ABI($abi));
+        return Contract::fromArray($abi, $validate, $errors);
+    }
+
+    /**
+     * @param \FurqanSiddiqui\Ethereum\RPC\Abstract_RPC_Client $rpc
+     * @param \FurqanSiddiqui\Ethereum\Contracts\Contract $contract
+     * @param \FurqanSiddiqui\Ethereum\Buffers\EthereumAddress|string $address
+     * @return \FurqanSiddiqui\Ethereum\Contracts\DeployedContract
+     */
+    public function deployedAt(Abstract_RPC_Client $rpc, Contract $contract, EthereumAddress|string $address): DeployedContract
+    {
+        return new DeployedContract($contract, $address, $rpc);
     }
 }
