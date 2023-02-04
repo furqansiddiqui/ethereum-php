@@ -18,6 +18,6 @@ namespace FurqanSiddiqui\Ethereum\Exception;
  * Class RPCRequestError
  * @package FurqanSiddiqui\Ethereum\Exception
  */
-class RPCRequestError extends RPCException
+class RPC_RequestException extends RPC_ClientException
 {
 }

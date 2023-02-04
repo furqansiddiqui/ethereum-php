@@ -15,19 +15,9 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\Exception;
 
 /**
- * Class RPCInvalidResponseException
+ * Class RPC_ClientException
  * @package FurqanSiddiqui\Ethereum\Exception
  */
-class RPCInvalidResponseException extends RPCException
+class RPC_ClientException extends EthereumException
 {
-    /**
-     * @param string $method
-     * @param string $expected
-     * @param string $got
-     * @return static
-     */
-    public static function InvalidDataType(string $method, string $expected, string $got): self
-    {
-        return new self(sprintf('RPC method [%s], Expected result data type "%s", got "%s"', $method, ucfirst($expected), ucfirst($got)));
-    }
 }

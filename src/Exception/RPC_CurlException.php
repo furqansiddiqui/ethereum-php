@@ -15,9 +15,24 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\Exception;
 
 /**
- * Class RPCResponseParseException
+ * Class RPC_CurlException
  * @package FurqanSiddiqui\Ethereum\Exception
  */
-class RPCResponseParseException extends RPCException
+class RPC_CurlException extends RPC_RequestException
 {
+    /** @var string */
+    public readonly string $errorStr;
+    /** @var int */
+    public readonly int $errorNo;
+
+    /**
+     * @param \CurlHandle $ch
+     */
+    public function __construct(\CurlHandle $ch)
+    {
+        $this->errorStr = curl_error($ch);
+        $this->errorNo = curl_errno($ch);
+        curl_close($ch);
+        parent::__construct('Curl request failed');
+    }
 }

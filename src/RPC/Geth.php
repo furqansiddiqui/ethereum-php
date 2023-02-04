@@ -17,28 +17,34 @@ namespace FurqanSiddiqui\Ethereum\RPC;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
- * Class GethRPC
+ * Class Geth
  * @package FurqanSiddiqui\Ethereum\RPC
  */
-class GethRPC extends AbstractRPCClient
+class Geth extends Abstract_RPC_Client
 {
     /** @var string */
-    private string $hostname;
-    /** @var int|null */
-    private ?int $port;
+    public readonly string $serverURL;
 
     /**
-     * GethRPC constructor.
-     * @param Ethereum $eth
-     * @param string $host
+     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
+     * @param string $hostname
      * @param int|null $port
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_ClientException
      */
-    public function __construct(Ethereum $eth, string $host, ?int $port = null)
+    public function __construct(
+        protected readonly Ethereum $eth,
+        public readonly string      $hostname,
+        public readonly ?int        $port,
+    )
     {
-        parent::__construct($eth);
+        parent::__construct($this->eth);
 
-        $this->hostname = $host;
-        $this->port = $port && $port <= 0xffff ? $port : null;
+        $serverURL = $this->port ? $this->hostname . ":" . $this->port : $this->hostname;
+        if (!preg_match('/^(http|https):\/\//i', $serverURL)) {
+            $serverURL = "http://" . $serverURL;
+        }
+
+        $this->serverURL = $serverURL;
     }
 
     /**
@@ -46,15 +52,6 @@ class GethRPC extends AbstractRPCClient
      */
     protected function getServerURL(): string
     {
-        $url = $this->hostname;
-        if (!preg_match('/^(http|https):\/\//i', $url)) {
-            $url = "http://" . $url;
-        }
-
-        if ($this->port) {
-            $url .= ":" . $this->port;
-        }
-
-        return $url;
+        return $this->serverURL;
     }
 }
