@@ -29,6 +29,19 @@ class Mapper
     private array $structure = [];
 
     /**
+     * @return $this
+     */
+    public function skip(): static
+    {
+        $this->structure[] = [
+            "type" => "skip",
+            "prop" => "",
+        ];
+
+        return $this;
+    }
+
+    /**
      * @param string $mapTo
      * @return $this
      */
@@ -102,6 +115,20 @@ class Mapper
      * @param string $mapTo
      * @return $this
      */
+    public function expectBool(string $mapTo): static
+    {
+        $this->structure[] = [
+            "type" => "bool",
+            "prop" => $mapTo
+        ];
+
+        return $this;
+    }
+
+    /**
+     * @param string $mapTo
+     * @return $this
+     */
     public function mapAsIs(string $mapTo): static
     {
         $this->structure[] = [
@@ -132,7 +159,18 @@ class Mapper
                 );
             }
 
+            if ($type === "skip") {
+                continue;
+            }
+
             $value = $buffer[$i];
+            if ($type === "bool") {
+                if (is_int($value) && in_array($value, [0, 1])) {
+                    $result[$key] = (bool)$value;
+                    continue;
+                }
+            }
+
             if ($type === "int") {
                 if (is_int($value)) {
                     $result[$key] = $value;
