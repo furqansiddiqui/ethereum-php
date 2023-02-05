@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\Exception;
 
 /**
- * Class RLPEncodeException
+ * Class RLP_EncodeException
  * @package FurqanSiddiqui\Ethereum\Exception
  */
-class RLPEncodeException extends EthereumException
+class RLP_EncodeException extends EthereumException
 {
 }

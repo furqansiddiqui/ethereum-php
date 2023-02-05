@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-namespace FurqanSiddiqui\Ethereum\KeyPair;
+namespace FurqanSiddiqui\Ethereum\Buffers;
 
 use Comely\DataTypes\Buffer\Base16;
 use FurqanSiddiqui\ECDSA\Signature\SignatureInterface;

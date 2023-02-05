@@ -14,41 +14,36 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RLP;
 
-use FurqanSiddiqui\Ethereum\Math\Integers;
-use FurqanSiddiqui\Ethereum\RLP;
-
 /**
  * Class RLPDecoder
  * @package FurqanSiddiqui\Ethereum\RLP
  */
-class RLPDecoder
+class Decoder
 {
-    /** @var string */
-    private string $encoded;
     /** @var array */
-    private array $indexes;
+    private array $structure = [];
 
     /**
-     * RLPDecoder constructor.
-     * @param string $rlpEncoded
+     * @param string $mapTo
+     * @return $this
      */
-    public function __construct(string $rlpEncoded)
+    public function expectInteger(string $mapTo): static
     {
-        $this->encoded = $rlpEncoded;
-        $this->indexes = [];
+        $this->structure[] = [
+            "type" => "int",
+            "prop" => $mapTo
+        ];
+        return $this;
     }
 
     /**
-     * @param int $index
-     * @param string|null $prop
+     * @param string $mapTo
      * @return $this
      */
-    public function expectInteger(int $index, ?string $prop = null): self
+    public function expectString(string $mapTo): static
     {
-        $this->indexes["in_" . $index] = [
-            "index" => $index,
-            "type" => "int",
-            "key" => $prop,
+        $this->structure[] = [
+            "prop" => $mapTo
         ];
 
         return $this;

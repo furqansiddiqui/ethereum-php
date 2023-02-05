@@ -49,7 +49,7 @@ class TransactionReceipt extends AbstractRPCResponseModel
     /**
      * TransactionReceipt constructor.
      * @param array $obj
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCResponseParseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCResponseParseClientException
      */
     public function __construct(array $obj)
     {

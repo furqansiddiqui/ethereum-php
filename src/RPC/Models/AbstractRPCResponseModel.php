@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RPC\Models;
 
-use FurqanSiddiqui\Ethereum\Exception\RPCResponseParseException;
+use FurqanSiddiqui\Ethereum\Exception\RPCResponseParseClientException;
 
 /**
  * Class AbstractRPCResponseModel
@@ -31,9 +31,9 @@ abstract class AbstractRPCResponseModel
      * @param string $param
      * @param string|null $expected
      * @param string|null $got
-     * @return RPCResponseParseException
+     * @return RPCResponseParseClientException
      */
-    protected function unexpectedParamValue(string $param, ?string $expected = null, ?string $got = null): RPCResponseParseException
+    protected function unexpectedParamValue(string $param, ?string $expected = null, ?string $got = null): RPCResponseParseClientException
     {
         $message = sprintf('Bad/unexpected value for param "%s"', $param);
         if ($expected) {
@@ -45,6 +45,6 @@ abstract class AbstractRPCResponseModel
         }
 
         // Throw
-        return new RPCResponseParseException($this->parseExceptionPrefix . $message . $this->parseExceptionSuffix);
+        return new RPCResponseParseClientException($this->parseExceptionPrefix . $message . $this->parseExceptionSuffix);
     }
 }

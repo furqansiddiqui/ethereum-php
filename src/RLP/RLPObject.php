@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RLP {
 
-    use FurqanSiddiqui\Ethereum\RLP;
     use FurqanSiddiqui\Ethereum\RLP\RLPObject\RLPObjectProp;
 
     /**

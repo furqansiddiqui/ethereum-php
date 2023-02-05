@@ -16,19 +16,18 @@ namespace FurqanSiddiqui\Ethereum\Transactions;
 
 use Comely\DataTypes\Buffer\Base16;
 use FurqanSiddiqui\Ethereum\Accounts\Account;
+use FurqanSiddiqui\Ethereum\Buffers\AbstractTransaction;
 use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\IncompleteTxException;
 use FurqanSiddiqui\Ethereum\Math\WEIValue;
-use FurqanSiddiqui\Ethereum\RLP;
+use FurqanSiddiqui\Ethereum\RLP\RLP;
 
 /**
  * Class TransactionConstructor
  * @package FurqanSiddiqui\Ethereum\Transactions
  */
-class TxBuilder
+class TxBuilder extends AbstractTransaction
 {
-    /** @var int */
-    private int $nonce;
     /** @var WEIValue */
     private WEIValue $gasPrice;
     /** @var int */
@@ -54,7 +53,7 @@ class TxBuilder
      */
     public static function Decode(Ethereum $eth, RLPEncodedTx $encoded): self
     {
-        $decoder = new RLP\RLPDecoder($encoded->serialized()->hexits(false));
+        $decoder = new RLP\Decoder($encoded->serialized()->hexits(false));
         $decoder->expectInteger(0, "nonce")
             ->expectInteger(1, "gasPrice")
             ->expectInteger(2, "gasLimit")

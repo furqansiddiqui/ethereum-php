@@ -21,7 +21,6 @@ use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Contracts\ABI_Factory;
 use FurqanSiddiqui\Ethereum\KeyPair\HDFactory;
 use FurqanSiddiqui\Ethereum\KeyPair\KeyPairFactory;
-use FurqanSiddiqui\Ethereum\Math\WEIConverter;
 use FurqanSiddiqui\Ethereum\Networks\AbstractNetworkConfig;
 
 /**
@@ -32,12 +31,8 @@ class Ethereum implements BIP32_Provider
 {
     /** @var \FurqanSiddiqui\BIP32\BIP32 */
     public readonly BIP32 $bip32;
-
-
-    /** @var WEIConverter */
-    private WEIConverter $weiConverter;
-    /** @var ABI_Factory */
-    private ABI_Factory $contracts;
+    /** @var \FurqanSiddiqui\Ethereum\Contracts\ABI_Factory */
+    public readonly ABI_Factory $abi;
 
     /**
      * Ethereum constructor.
@@ -50,9 +45,7 @@ class Ethereum implements BIP32_Provider
     )
     {
         $this->bip32 = new BIP32($this->ecc, $this->network);
-
-        $this->weiConverter = new WEIConverter();
-        $this->contracts = new ABI_Factory();
+        $this->abi = new ABI_Factory();
     }
 
     /**
@@ -63,38 +56,5 @@ class Ethereum implements BIP32_Provider
     public function getAddress(string $addr): EthereumAddress
     {
         return EthereumAddress::fromString($addr, EthereumAddress::hasChecksum($addr));
-    }
-
-    /**
-     * @return HDFactory
-     */
-    public function hd(): HDFactory
-    {
-        return $this->hdFactory;
-    }
-
-
-    /**
-     * @return WEIConverter
-     */
-    public function wei(): WEIConverter
-    {
-        return $this->weiConverter;
-    }
-
-    /**
-     * @return ABI_Factory
-     */
-    public function contracts(): ABI_Factory
-    {
-        return $this->contracts;
-    }
-
-    /**
-     * @return AbstractNetworkConfig
-     */
-    public function networkConfig(): AbstractNetworkConfig
-    {
-        return $this->network;
     }
 }

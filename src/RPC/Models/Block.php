@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RPC\Models;
 
-use FurqanSiddiqui\Ethereum\Exception\RPCResponseParseException;
+use FurqanSiddiqui\Ethereum\Exception\RPCResponseParseClientException;
 
 /**
  * Class Block
@@ -67,7 +67,7 @@ class Block extends AbstractRPCResponseModel
     /**
      * Block constructor.
      * @param array $obj
-     * @throws RPCResponseParseException
+     * @throws RPCResponseParseClientException
      */
     public function __construct(array $obj)
     {

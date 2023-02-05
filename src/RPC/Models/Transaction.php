@@ -65,7 +65,7 @@ class Transaction extends AbstractRPCResponseModel
      * Transaction constructor.
      * @param Ethereum $eth
      * @param array $obj
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCResponseParseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCResponseParseClientException
      */
     public function __construct(Ethereum $eth, array $obj)
     {
