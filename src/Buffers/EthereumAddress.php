@@ -74,11 +74,20 @@ class EthereumAddress extends AbstractFixedLenBuffer
             return $this->checksumAddress;
         }
 
-        if ($this->address) {
+        if (!$this->address) {
             $this->address = "0x" . $this->toBase16();
         }
 
         return $this->address;
+    }
+
+    /**
+     * @return string[]
+     * @throws \FurqanSiddiqui\Ethereum\Exception\InvalidAddressException
+     */
+    public function __debugInfo(): array
+    {
+        return [$this->toString(false)];
     }
 
     /**
