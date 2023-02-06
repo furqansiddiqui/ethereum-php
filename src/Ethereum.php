@@ -22,6 +22,7 @@ use FurqanSiddiqui\Ethereum\Contracts\ABI_Factory;
 use FurqanSiddiqui\Ethereum\KeyPair\HDFactory;
 use FurqanSiddiqui\Ethereum\KeyPair\KeyPairFactory;
 use FurqanSiddiqui\Ethereum\Networks\AbstractNetworkConfig;
+use FurqanSiddiqui\Ethereum\Transactions\TxFactory;
 
 /**
  * Class Ethereum
@@ -31,8 +32,14 @@ class Ethereum implements BIP32_Provider
 {
     /** @var \FurqanSiddiqui\BIP32\BIP32 */
     public readonly BIP32 $bip32;
+    /** @var \FurqanSiddiqui\Ethereum\KeyPair\KeyPairFactory */
+    public readonly KeyPairFactory $keyPair;
+    /** @var \FurqanSiddiqui\Ethereum\KeyPair\HDFactory */
+    public readonly HDFactory $hdKeyPair;
     /** @var \FurqanSiddiqui\Ethereum\Contracts\ABI_Factory */
     public readonly ABI_Factory $abi;
+    /** @var \FurqanSiddiqui\Ethereum\Transactions\TxFactory */
+    public readonly TxFactory $tx;
 
     /**
      * Ethereum constructor.
@@ -40,12 +47,13 @@ class Ethereum implements BIP32_Provider
     public function __construct(
         public readonly EllipticCurveInterface $ecc,
         public readonly AbstractNetworkConfig  $network,
-        public readonly KeyPairFactory         $keyPair,
-        public readonly HDFactory              $hdFactory
     )
     {
         $this->bip32 = new BIP32($this->ecc, $this->network);
         $this->abi = new ABI_Factory();
+        $this->keyPair = new KeyPairFactory($this);
+        $this->hdKeyPair = new HDFactory($this);
+        $this->tx = new TxFactory($this);
     }
 
     /**

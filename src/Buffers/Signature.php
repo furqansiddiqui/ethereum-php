@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Buffers;
 
-use Comely\DataTypes\Buffer\Base16;
+use Comely\Buffer\AbstractByteArray;
 use FurqanSiddiqui\ECDSA\Signature\SignatureInterface;
 
 /**
@@ -23,47 +23,33 @@ use FurqanSiddiqui\ECDSA\Signature\SignatureInterface;
  */
 class Signature implements SignatureInterface
 {
-    /** @var Base16 */
-    private Base16 $r;
-    /** @var Base16 */
-    private Base16 $s;
-    /** @var int */
-    private int $v;
-
     /**
-     * Signature constructor.
-     * @param Base16 $r
-     * @param Base16 $s
-     * @param int $v
+     * @param \Comely\Buffer\AbstractByteArray $signature
+     * @return static
+     * @throws \FurqanSiddiqui\ECDSA\Exception\ECDSA_Exception
+     * @throws \FurqanSiddiqui\ECDSA\Exception\SignatureException
      */
-    public function __construct(Base16 $r, Base16 $s, int $v)
+    public static function fromDER(AbstractByteArray $signature): static
     {
-        $this->r = $r;
-        $this->s = $s;
-        $this->v = $v;
+        $eccSignature = \FurqanSiddiqui\ECDSA\Signature\Signature::fromDER($signature);
+        return new static($eccSignature);
     }
 
     /**
-     * @return Base16
+     * @param \FurqanSiddiqui\ECDSA\Signature\Signature $eccSignature
      */
-    public function r(): Base16
+    public function __construct(
+        public readonly \FurqanSiddiqui\ECDSA\Signature\Signature $eccSignature
+    )
     {
-        return $this->r;
     }
 
     /**
-     * @return Base16
+     * @param int $paddedIntegerSize
+     * @return \Comely\Buffer\AbstractByteArray
      */
-    public function s(): Base16
+    public function getDER(int $paddedIntegerSize = 0): AbstractByteArray
     {
-        return $this->s;
-    }
-
-    /**
-     * @return int
-     */
-    public function v(): int
-    {
-        return $this->v;
+        return $this->eccSignature->getDER($paddedIntegerSize);
     }
 }

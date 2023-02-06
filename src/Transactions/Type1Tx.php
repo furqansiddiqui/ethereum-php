@@ -12,12 +12,13 @@
 
 declare(strict_types=1);
 
-namespace FurqanSiddiqui\Ethereum\Exception;
+namespace FurqanSiddiqui\Ethereum\Transactions;
 
 /**
- * Class IncompleteTxException
- * @package FurqanSiddiqui\Ethereum\Exception
+ * Class Type1Tx
+ * @package FurqanSiddiqui\Ethereum\Transactions
  */
-class IncompleteTxException extends EthereumException
+class Type1Tx extends EIP2718Tx
 {
 }
+
