@@ -46,7 +46,7 @@ class EthereumAddress extends AbstractFixedLenBuffer
                 throw new InvalidAddressException('Checksum error');
             }
         } else {
-            if (static::isValidString($addr)) {
+            if (!static::isValidString($addr)) {
                 throw new InvalidAddressException('Bad address string');
             }
         }
