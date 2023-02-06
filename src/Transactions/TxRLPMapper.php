@@ -26,6 +26,8 @@ class TxRLPMapper
     private static null|Mapper $legacyTx = null;
     /** @var \FurqanSiddiqui\Ethereum\RLP\Mapper|null */
     private static null|Mapper $eip1559Tx = null;
+    /** @var \FurqanSiddiqui\Ethereum\RLP\Mapper|null */
+    private static null|Mapper $eip2718Tx = null;
 
     /**
      * @return \FurqanSiddiqui\Ethereum\RLP\Mapper
@@ -37,7 +39,7 @@ class TxRLPMapper
         }
 
         static::$legacyTx = (new Mapper())
-            ->expectInteger("none")
+            ->expectInteger("nonce")
             ->expectWEIAmount("gasPrice")
             ->expectInteger("gasLimit")
             ->expectAddress("to")
@@ -66,11 +68,35 @@ class TxRLPMapper
             ->expectInteger("gasLimit")
             ->expectAddress("to")
             ->expectWEIAmount("value")
-            ->mapAsIs("data")
+            ->expectString("data")
             ->mapAsIs("accessList")
             ->expectBool("signatureParity")
             ->expectString("signatureR")
             ->expectString("signatureS");
         return static::$eip1559Tx;
+    }
+
+    /**
+     * @return \FurqanSiddiqui\Ethereum\RLP\Mapper
+     */
+    public static function EIP2718Tx(): Mapper
+    {
+        if (static::$eip2718Tx) {
+            return static::$eip2718Tx;
+        }
+
+        static::$eip2718Tx = (new Mapper())
+            ->expectInteger("chainId")
+            ->expectInteger("nonce")
+            ->expectWEIAmount("gasPrice")
+            ->expectInteger("gasLimit")
+            ->expectAddress("to")
+            ->expectWEIAmount("value")
+            ->expectString("data")
+            ->mapAsIs("accessList")
+            ->expectBool("signatureParity")
+            ->expectString("signatureR")
+            ->expectString("signatureS");
+        return static::$eip2718Tx;
     }
 }

@@ -14,7 +14,9 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RLP;
 
+use Comely\Buffer\AbstractByteArray;
 use Comely\Buffer\BigInteger\BigEndian;
+use Comely\Buffer\Buffer;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
 use FurqanSiddiqui\Ethereum\Exception\RLP_MapperException;
@@ -140,11 +142,50 @@ class Mapper
     }
 
     /**
+     * @return array
+     */
+    public function getStructure(): array
+    {
+        return $this->structure;
+    }
+
+    /**
+     * @param \FurqanSiddiqui\Ethereum\RLP\RLP_Mappable $object
+     * @return \Comely\Buffer\AbstractByteArray
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
+     */
+    public function encode(RLP_Mappable $object): AbstractByteArray
+    {
+        $bytes = new Buffer();
+        foreach ($this->structure as $prop) {
+            /** @var string $key */
+            $key = $prop["prop"];
+            /** @var null|string|\FurqanSiddiqui\Ethereum\RLP\Mapper $type */
+            $type = $prop["type"] ?? null;
+
+            if ($type === "skip") {
+                continue;
+            }
+
+            if (!property_exists($object, $key)) {
+                throw new RLP_MapperException(
+                    sprintf('Property "%s" not found in %s', $key, get_class($object))
+                );
+            }
+
+            $bytes->append(RLP::Encode($object->$key));
+        }
+
+        return $bytes;
+    }
+
+    /**
      * @param array $buffer
      * @return array
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */
-    public function decode(array $buffer): array
+    public function createArray(array $buffer): array
     {
         $result = [];
         foreach ($this->structure as $i => $prop) {
@@ -225,7 +266,7 @@ class Mapper
                     );
                 }
 
-                $result[$key] = $type->decode($value);
+                $result[$key] = $type->createArray($value);
                 continue;
             }
 

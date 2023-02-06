@@ -19,7 +19,7 @@
     "ext-bcmath": "*",
     "ext-curl": "*",
     "ext-json": "*",
-    "comely-io/buffer-php": "^0.1.13",
+    "comely-io/buffer-php": "^0.1.14",
     "comely-io/utils": "^2.0.6",
     "furqansiddiqui/ecdsa-php": "^0.3.3",
     "furqansiddiqui/bip39-mnemonic-php": "^0.1.6",

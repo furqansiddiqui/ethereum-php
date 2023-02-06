@@ -18,7 +18,9 @@ use Comely\Buffer\AbstractByteArray;
 use Comely\Buffer\BigInteger;
 use Comely\Buffer\BigInteger\BigEndian;
 use Comely\Buffer\Buffer;
+use Comely\Buffer\Exception\ByteReaderUnderflowException;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
+use FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException;
 use FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException;
 
 /**
@@ -30,11 +32,15 @@ class RLP
     /**
      * @param \Comely\Buffer\AbstractByteArray $encoded
      * @return mixed
-     * @throws \Comely\Buffer\Exception\ByteReaderUnderflowException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      */
     public static function Decode(AbstractByteArray $encoded): mixed
     {
-        return static::_Decode($encoded)[0];
+        try {
+            return static::_Decode($encoded)[0];
+        } catch (ByteReaderUnderflowException $e) {
+            throw new RLP_DecodeException($e->getMessage());
+        }
     }
 
     /**
@@ -115,6 +121,10 @@ class RLP
         $buffer = new Buffer();
         foreach ($data as $value) {
             unset($bigIntValue, $strLenBytes);
+
+            if (is_bool($value)) {
+                $value = (int)$value;
+            }
 
             if (is_null($value)) {
                 $value = "";
