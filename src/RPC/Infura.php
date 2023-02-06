@@ -25,7 +25,6 @@ class Infura extends Abstract_RPC_Client
     public readonly string $serverURL;
 
     /**
-     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
      * @param string $apiKey
      * @param string $apiSecret
      * @param string $networkId
@@ -33,14 +32,13 @@ class Infura extends Abstract_RPC_Client
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_ClientException
      */
     public function __construct(
-        protected readonly Ethereum $eth,
-        public readonly string      $apiKey,
-        public readonly string      $apiSecret,
-        public readonly string      $networkId = "mainnet",
-        public readonly string      $apiVersion = "v3"
+        public readonly string $apiKey,
+        public readonly string $apiSecret,
+        public readonly string $networkId = "mainnet",
+        public readonly string $apiVersion = "v3"
     )
     {
-        parent::__construct($this->eth);
+        parent::__construct();
         $this->serverURL = sprintf('https://%s.infura.io/%s/%s', $this->networkId, $this->apiVersion, $this->apiKey);
         if ($this->apiSecret) {
             $this->httpAuthPass = $this->apiSecret;

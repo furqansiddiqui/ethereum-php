@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RPC;
 
-use FurqanSiddiqui\Ethereum\Ethereum;
-
 /**
  * Class Geth
  * @package FurqanSiddiqui\Ethereum\RPC
@@ -26,19 +24,16 @@ class Geth extends Abstract_RPC_Client
     public readonly string $serverURL;
 
     /**
-     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
      * @param string $hostname
      * @param int|null $port
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_ClientException
      */
     public function __construct(
-        protected readonly Ethereum $eth,
-        public readonly string      $hostname,
-        public readonly ?int        $port,
+        public readonly string $hostname,
+        public readonly ?int   $port,
     )
     {
-        parent::__construct($this->eth);
-
+        parent::__construct();
         $serverURL = $this->port ? $this->hostname . ":" . $this->port : $this->hostname;
         if (!preg_match('/^(http|https):\/\//i', $serverURL)) {
             $serverURL = "http://" . $serverURL;

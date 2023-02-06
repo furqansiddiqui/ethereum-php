@@ -42,13 +42,11 @@ abstract class Abstract_JSON_RPC_2
     public ?string $requestNoncePrefix = null;
 
     /**
-     * @param \FurqanSiddiqui\Ethereum\Ethereum $ethereum
      * @param string|null $caRootFile
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_ClientException
      */
     public function __construct(
-        protected readonly Ethereum $ethereum,
-        protected readonly ?string  $caRootFile = null
+        protected readonly ?string $caRootFile = null
     )
     {
         if ($this->caRootFile && !is_file($this->caRootFile) || !is_readable($this->caRootFile)) {
