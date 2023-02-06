@@ -49,7 +49,7 @@ abstract class Abstract_JSON_RPC_2
         protected readonly ?string $caRootFile = null
     )
     {
-        if ($this->caRootFile && !is_file($this->caRootFile) || !is_readable($this->caRootFile)) {
+        if ($this->caRootFile && (!is_file($this->caRootFile) || !is_readable($this->caRootFile))) {
             throw new RPC_ClientException('Cannot read CA root file for SSL/TLS support');
         }
     }
