@@ -130,6 +130,7 @@ abstract class Abstract_JSON_RPC_2
         }
 
         // Execute cURL request
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $response = curl_exec($ch);
         if ($response === false) {
             throw new RPC_CurlException($ch);
