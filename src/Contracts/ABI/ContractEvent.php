@@ -46,11 +46,12 @@ class ContractEvent
 
     /**
      * @param \FurqanSiddiqui\Ethereum\Contracts\ABI\ContractMethodParam $param
-     * @return void
+     * @return static
      */
-    public function appendInput(ContractMethodParam $param): void
+    public function appendInput(ContractMethodParam $param): static
     {
         $this->inputs[] = $param;
+        return $this;
     }
 
     /**

@@ -60,20 +60,22 @@ class ContractMethod
 
     /**
      * @param \FurqanSiddiqui\Ethereum\Contracts\ABI\ContractMethodParam $param
-     * @return void
+     * @return static
      */
-    public function appendInput(ContractMethodParam $param): void
+    public function appendInput(ContractMethodParam $param): static
     {
         $this->inputs[] = $param;
+        return $this;
     }
 
     /**
      * @param \FurqanSiddiqui\Ethereum\Contracts\ABI\ContractMethodParam $param
-     * @return void
+     * @return static
      */
-    public function appendOutput(ContractMethodParam $param): void
+    public function appendOutput(ContractMethodParam $param): static
     {
         $this->outputs[] = $param;
+        return $this;
     }
 
     /**
