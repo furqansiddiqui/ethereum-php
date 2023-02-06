@@ -200,6 +200,15 @@ class DeployedContract
     }
 
     /**
+     * @param string $str
+     * @return string
+     */
+    protected function cleanOutputStr(string $str): string
+    {
+        return preg_replace('/[^\w.-]/', '', trim($str));
+    }
+
+    /**
      * @param string $func
      * @param array|null $args
      * @param string $block
