@@ -14,10 +14,9 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RLP;
 
-use Comely\Buffer\AbstractByteArray;
 use Comely\Buffer\BigInteger\BigEndian;
-use Comely\Buffer\Buffer;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
+use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
 use FurqanSiddiqui\Ethereum\Exception\RLP_MapperException;
 
@@ -151,13 +150,13 @@ class Mapper
 
     /**
      * @param \FurqanSiddiqui\Ethereum\RLP\RLP_Mappable $object
-     * @return \Comely\Buffer\AbstractByteArray
+     * @return \FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */
-    public function encode(RLP_Mappable $object): AbstractByteArray
+    public function encode(RLP_Mappable $object): RLP_Encoded
     {
-        $bytes = new Buffer();
+        $bytes = new RLP_Encoded();
         foreach ($this->structure as $prop) {
             /** @var string $key */
             $key = $prop["prop"];

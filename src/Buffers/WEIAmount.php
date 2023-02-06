@@ -30,13 +30,17 @@ class WEIAmount
     public readonly string $gWei;
 
     /**
-     * @param string $ethAmount
+     * @param int|string $ethAmount
      * @return static
      * @throws \FurqanSiddiqui\Ethereum\Exception\BadWEIAmountException
      */
-    public static function fromETH(string $ethAmount): static
+    public static function fromETH(int|string $ethAmount): static
     {
-        if (!preg_match('/^(0|[1-9][0-9]+)(\.[0-9]+)?$/', $ethAmount)) {
+        if (is_int($ethAmount)) {
+            $ethAmount = strval($ethAmount);
+        }
+
+        if (!preg_match('/^(0|[1-9][0-9]*)(\.[0-9]+)?$/', $ethAmount)) {
             throw new BadWEIAmountException('Bad ETH value');
         }
 
@@ -44,12 +48,16 @@ class WEIAmount
     }
 
     /**
-     * @param string $gWeiAmount
+     * @param int|string $gWeiAmount
      * @return static
      * @throws \FurqanSiddiqui\Ethereum\Exception\BadWEIAmountException
      */
-    public static function fromGWei(string $gWeiAmount): static
+    public static function fromGWei(int|string $gWeiAmount): static
     {
+        if (is_int($gWeiAmount)) {
+            $gWeiAmount = strval($gWeiAmount);
+        }
+
         if (!preg_match('/^(0|[1-9][0-9]+)(\.[0-9]+)?$/', $gWeiAmount)) {
             throw new BadWEIAmountException('Bad GWei value');
         }

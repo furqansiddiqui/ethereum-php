@@ -15,6 +15,8 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
 use Comely\Buffer\AbstractByteArray;
+use Comely\Buffer\Bytes32;
+use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
 
 /**
  * Interface TransactionInterface
@@ -29,7 +31,13 @@ interface TransactionInterface
     public static function DecodeRawTransaction(AbstractByteArray $raw): static;
 
     /**
-     * @return \Comely\Buffer\AbstractByteArray
+     * @return \FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded
      */
-    public function encode(): AbstractByteArray;
+    public function encode(): RLP_Encoded;
+
+    /**
+     * @return \Comely\Buffer\Bytes32
+     */
+    public function hash(): Bytes32;
 }
+

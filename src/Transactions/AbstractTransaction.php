@@ -16,7 +16,10 @@ namespace FurqanSiddiqui\Ethereum\Transactions;
 
 use Comely\Buffer\AbstractByteArray;
 use Comely\Buffer\BigInteger\BigEndian;
+use Comely\Buffer\Bytes32;
+use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
 use FurqanSiddiqui\Ethereum\Exception\TxDecodeException;
+use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
 use FurqanSiddiqui\Ethereum\RLP\Mapper;
 use FurqanSiddiqui\Ethereum\RLP\RLP;
 use FurqanSiddiqui\Ethereum\RLP\RLP_Mappable;
@@ -62,13 +65,12 @@ abstract class AbstractTransaction implements RLP_Mappable, TransactionInterface
     }
 
     /**
-     * @return \Comely\Buffer\AbstractByteArray
+     * @return \FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */
-    public function encode(): AbstractByteArray
+    public function encode(): RLP_Encoded
     {
-        /** @var \Comely\Buffer\Buffer $encoded */
         $encoded = static::Mapper()->encode($this);
         $encodedLen = $encoded->len();
 
@@ -80,5 +82,15 @@ abstract class AbstractTransaction implements RLP_Mappable, TransactionInterface
         $encoded->prependUInt8($encodedLen);
         $encoded->prependUInt8(0xf7 + strlen(BigEndian::GMP_Pack($encodedLen)));
         return $encoded;
+    }
+
+    /**
+     * @return \Comely\Buffer\Bytes32
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
+     */
+    public function hash(): Bytes32
+    {
+        return new Bytes32(Keccak::hash($this->encode()->raw(), 256, true));
     }
 }

@@ -16,6 +16,7 @@ namespace FurqanSiddiqui\Ethereum\Buffers;
 
 use Comely\Buffer\AbstractByteArray;
 use FurqanSiddiqui\ECDSA\Signature\SignatureInterface;
+use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
  * Class Signature
@@ -23,6 +24,11 @@ use FurqanSiddiqui\ECDSA\Signature\SignatureInterface;
  */
 class Signature implements SignatureInterface
 {
+    /** @var null|int */
+    public readonly ?int $v;
+    /** @var null|bool */
+    public readonly ?bool $yParity;
+
     /**
      * @param \Comely\Buffer\AbstractByteArray $signature
      * @return static
@@ -37,11 +43,21 @@ class Signature implements SignatureInterface
 
     /**
      * @param \FurqanSiddiqui\ECDSA\Signature\Signature $eccSignature
+     * @param \FurqanSiddiqui\Ethereum\Ethereum|null $eth
      */
     public function __construct(
-        public readonly \FurqanSiddiqui\ECDSA\Signature\Signature $eccSignature
+        public readonly \FurqanSiddiqui\ECDSA\Signature\Signature $eccSignature,
+        ?Ethereum                                                 $eth = null
     )
     {
+        if ($this->eccSignature->recoveryId > -1) {
+            $this->yParity = in_array($this->eccSignature->recoveryId, [1, 4]);
+            $this->v = $eth->network->chainId * 2 + (35 + (int)$this->yParity);
+            return;
+        }
+
+        $this->v = null;
+        $this->yParity = null;
     }
 
     /**

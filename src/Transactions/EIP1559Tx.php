@@ -16,6 +16,7 @@ namespace FurqanSiddiqui\Ethereum\Transactions;
 
 use Comely\Buffer\AbstractByteArray;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
+use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
 use FurqanSiddiqui\Ethereum\Exception\TxDecodeException;
 use FurqanSiddiqui\Ethereum\RLP\Mapper;
@@ -67,13 +68,12 @@ class EIP1559Tx extends AbstractTransaction
     }
 
     /**
-     * @return \Comely\Buffer\AbstractByteArray
+     * @return \FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */
-    public function encode(): AbstractByteArray
+    public function encode(): RLP_Encoded
     {
-        /** @var \Comely\Buffer\AbstractWritableBuffer $buffer */
         $buffer = parent::encode();
         return $buffer->prepend("\x02");
     }

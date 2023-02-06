@@ -30,7 +30,7 @@ class LegacyTx extends AbstractTransaction
     public ?EthereumAddress $to = null;
     public ?WEIAmount $value = null;
     public ?string $data = null;
-    public ?int $signatureV = null;
+    public ?int $signatureV = 1;
     public ?string $signatureR = null;
     public ?string $signatureS = null;
 
