@@ -189,10 +189,9 @@ class DeployedContract
         }
         $type = preg_replace('/[^a-z]/', '', $type);
 
-        $encoded = ltrim($encoded, "0");
         return match ($type) {
             "hash", "address" => "0x" . $encoded,
-            "uint", "int" => gmp_strval(BigEndian::GMP_Unpack(hex2bin($encoded)), 10),
+            "uint", "int" => gmp_strval(BigEndian::GMP_Unpack($encoded), 10),
             "bool" => boolval($encoded),
             "string" => ASCII::fromHex($encoded),
             default => throw new Contract_ABIException(sprintf('Cannot encode value of type "%s"', $type)),
@@ -203,7 +202,7 @@ class DeployedContract
      * @param string $str
      * @return string
      */
-    protected function cleanOutputStr(string $str): string
+    protected function cleanOutputASCII(string $str): string
     {
         return preg_replace('/[^\w.-]/', '', trim($str));
     }
