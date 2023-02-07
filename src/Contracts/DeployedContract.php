@@ -110,7 +110,7 @@ class DeployedContract
                 break;
             case "uint":
             case "int":
-                $value = BigEndian::GMP_Pack($value);
+                $value = bin2hex(BigEndian::GMP_Pack($value));
                 break;
             case "bool":
                 $value = $value === true ? 1 : 0;
