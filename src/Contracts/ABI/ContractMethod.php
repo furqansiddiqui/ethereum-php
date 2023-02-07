@@ -213,7 +213,7 @@ class ContractMethod
     {
         $contractMethod = new static(
             $method["type"],
-            $method["name"],
+            $method["name"] ?? null,
             $method["constant"] ?? null,
             $method["payable"] ?? null,
         );

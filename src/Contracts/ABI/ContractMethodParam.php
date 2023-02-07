@@ -70,7 +70,7 @@ class ContractMethodParam
         }
 
         $name = $param["name"] ?? null;
-        if (!is_string($name) || !preg_match('/^\w+$/', $name)) {
+        if (!is_string($name)) {
             throw new Contract_ABIException(
                 sprintf('Bad value for "%s" param "name" of "%s" at index %d', $object, $methodId, $index)
             );
@@ -91,7 +91,7 @@ class ContractMethodParam
             }
         }
 
-        return new static($name, $type, $index ?? false);
+        return new static($name, $type, $param["indexed"] ?? false);
     }
 
     /**
