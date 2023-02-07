@@ -133,7 +133,7 @@ class DeployedContract
      */
     public function decodeResponse(string $name, string $encoded): array
     {
-        $method = $this->contract->functions()[$name] ?? null;
+        $method = $this->contract->functions()[strtolower($name)] ?? null;
         if (!$method instanceof ContractMethod) {
             throw new Contract_ABIException(sprintf('Call method "%s" is undefined in ABI', $name));
         }
