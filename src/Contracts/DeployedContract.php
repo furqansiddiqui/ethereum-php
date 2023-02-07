@@ -191,7 +191,7 @@ class DeployedContract
 
         return match ($type) {
             "hash", "address" => "0x" . $encoded,
-            "uint", "int" => gmp_strval(BigEndian::GMP_Unpack($encoded), 10),
+            "uint", "int" => gmp_strval(BigEndian::GMP_Unpack(hex2bin($encoded)), 10),
             "bool" => boolval($encoded),
             "string" => ASCII::fromHex($encoded),
             default => throw new Contract_ABIException(sprintf('Cannot encode value of type "%s"', $type)),
