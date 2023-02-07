@@ -52,7 +52,7 @@ class DeployedContract
      */
     public function encodeCall(string $name, ?array $args = null, bool $strictMode = true): string
     {
-        $method = $this->contract->functions()[$name] ?? null;
+        $method = $this->contract->functions()[strtolower($name)] ?? null;
         if (!$method instanceof ContractMethod) {
             throw new Contract_ABIException(sprintf('Call method "%s" is undefined in contract ABI', $name));
         }
