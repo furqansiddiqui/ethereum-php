@@ -20,6 +20,7 @@ use FurqanSiddiqui\BIP32\Buffers\BIP32_Provider;
 use FurqanSiddiqui\BIP32\Buffers\Bits32;
 use FurqanSiddiqui\BIP32\Buffers\SerializedBIP32Key;
 use FurqanSiddiqui\BIP32\KeyPair\ExtendedKeyPair;
+use FurqanSiddiqui\BIP32\KeyPair\PublicKeyInterface;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
@@ -30,6 +31,8 @@ class HDKey extends ExtendedKeyPair
 {
     /** @var \FurqanSiddiqui\Ethereum\Ethereum */
     public readonly Ethereum $eth;
+    /** @var \FurqanSiddiqui\Ethereum\KeyPair\PublicKey|null */
+    protected ?PublicKey $_public = null;
 
     /**
      * @param \FurqanSiddiqui\Ethereum\Ethereum|\FurqanSiddiqui\BIP32\Buffers\BIP32_Provider $bip32
@@ -40,7 +43,7 @@ class HDKey extends ExtendedKeyPair
     public static function Unserialize(Ethereum|BIP32_Provider $bip32, SerializedBIP32Key $ser): static
     {
         if (!$bip32 instanceof Ethereum) {
-            throw new \InvalidArgumentException('Expected instead of Ethereum for Unserialize method');
+            throw new \InvalidArgumentException('Expected instance of Ethereum for Unserialize method');
         }
 
         $hdKey = parent::Unserialize($bip32->bip32, $ser);
@@ -82,7 +85,7 @@ class HDKey extends ExtendedKeyPair
      */
     public function derive(int $index, bool $isHardened = false): static
     {
-        return parent::derive($index, $isHardened);
+        return HDKey::Unserialize($this->eth, $this->_derive($index, $isHardened));
     }
 
     /**
@@ -94,5 +97,19 @@ class HDKey extends ExtendedKeyPair
     public function derivePath($path): static
     {
         return parent::derivePath($path);
+    }
+
+    /**
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\PublicKey|\FurqanSiddiqui\BIP32\KeyPair\PublicKeyInterface
+     * @throws \FurqanSiddiqui\BIP32\Exception\KeyPairException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\KeyPairException
+     */
+    public function publicKey(): PublicKey|PublicKeyInterface
+    {
+        if (!$this->_public) {
+            $this->_public = new PublicKey($this->eth, $this->privateKey()->eccPrivateKey->public());
+        }
+
+        return $this->_public;
     }
 }
