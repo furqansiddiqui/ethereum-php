@@ -46,7 +46,7 @@ class HDKey extends ExtendedKeyPair
             throw new \InvalidArgumentException('Expected instance of Ethereum for Unserialize method');
         }
 
-        $hdKey = parent::Unserialize($bip32->bip32, $ser);
+        $hdKey = parent::Unserialize($bip32, $ser);
         $hdKey->eth = $bip32;
         return $hdKey;
     }
@@ -83,7 +83,7 @@ class HDKey extends ExtendedKeyPair
      * @throws \FurqanSiddiqui\BIP32\Exception\ChildKeyDeriveException
      * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
      */
-    public function derive(int $index, bool $isHardened = false): static
+    public function derive(int $index, bool $isHardened = false): HDKey
     {
         return HDKey::Unserialize($this->eth, $this->_derive($index, $isHardened));
     }
@@ -94,7 +94,7 @@ class HDKey extends ExtendedKeyPair
      * @throws \FurqanSiddiqui\BIP32\Exception\ChildKeyDeriveException
      * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
      */
-    public function derivePath($path): static
+    public function derivePath($path): HDKey
     {
         return parent::derivePath($path);
     }
