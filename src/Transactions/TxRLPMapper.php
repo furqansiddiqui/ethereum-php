@@ -30,6 +30,8 @@ class TxRLPMapper
     private static null|Mapper $eip1559Tx_Unsigned = null;
     /** @var \FurqanSiddiqui\Ethereum\RLP\Mapper|null */
     private static null|Mapper $eip2718Tx = null;
+    /** @var \FurqanSiddiqui\Ethereum\RLP\Mapper|null */
+    private static null|Mapper $eip2718Tx_Unsigned = null;
 
     /**
      * @return \FurqanSiddiqui\Ethereum\RLP\Mapper
@@ -78,6 +80,9 @@ class TxRLPMapper
         return static::$eip1559Tx;
     }
 
+    /**
+     * @return \FurqanSiddiqui\Ethereum\RLP\Mapper
+     */
     public static function EIP1559Tx_Unsigned(): Mapper
     {
         if (static::$eip1559Tx_Unsigned) {
@@ -119,5 +124,26 @@ class TxRLPMapper
             ->expectString("signatureR")
             ->expectString("signatureS");
         return static::$eip2718Tx;
+    }
+
+    /**
+     * @return \FurqanSiddiqui\Ethereum\RLP\Mapper
+     */
+    public static function EIP2718Tx_Unsigned(): Mapper
+    {
+        if (static::$eip2718Tx_Unsigned) {
+            return static::$eip2718Tx_Unsigned;
+        }
+
+        static::$eip2718Tx_Unsigned = (new Mapper())
+            ->expectInteger("chainId")
+            ->expectInteger("nonce")
+            ->expectWEIAmount("gasPrice")
+            ->expectInteger("gasLimit")
+            ->expectAddress("to")
+            ->expectWEIAmount("value")
+            ->expectString("data")
+            ->mapAsIs("accessList");
+        return static::$eip2718Tx_Unsigned;
     }
 }

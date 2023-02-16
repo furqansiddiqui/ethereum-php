@@ -90,7 +90,7 @@ class EIP2718Tx extends AbstractTransaction
     public function signPreImage(): Bytes32
     {
         $unSignedTx = $this->isSigned() ? $this->getUnsigned() : $this;
-        $encoded = $unSignedTx->encode(TxRLPMapper::EIP1559Tx_Unsigned())->raw();
+        $encoded = $unSignedTx->encode(TxRLPMapper::EIP2718Tx_Unsigned())->raw();
         return new Bytes32(Keccak::hash($encoded, 256, true));
     }
 
