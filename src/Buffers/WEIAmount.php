@@ -58,7 +58,7 @@ class WEIAmount
             $gWeiAmount = strval($gWeiAmount);
         }
 
-        if (!preg_match('/^(0|[1-9][0-9]+)(\.[0-9]+)?$/', $gWeiAmount)) {
+        if (!preg_match('/^(0|[1-9][0-9]*)(\.[0-9]+)?$/', $gWeiAmount)) {
             throw new BadWEIAmountException('Bad GWei value');
         }
 
