@@ -33,12 +33,12 @@ class TxFactory
 
     /**
      * @param \Comely\Buffer\AbstractByteArray $rawTx
-     * @return \FurqanSiddiqui\Ethereum\Transactions\TransactionInterface
+     * @return \FurqanSiddiqui\Ethereum\Transactions\LegacyTx|\FurqanSiddiqui\Ethereum\Transactions\Type1Tx|\FurqanSiddiqui\Ethereum\Transactions\Type2Tx|\FurqanSiddiqui\Ethereum\Transactions\TransactionInterface
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      * @throws \FurqanSiddiqui\Ethereum\Exception\TxDecodeException
      */
-    public function decode(AbstractByteArray $rawTx): TransactionInterface
+    public function decode(AbstractByteArray $rawTx): LegacyTx|Type1Tx|Type2Tx|TransactionInterface
     {
         $prefix = substr($rawTx->raw(), 0, 1);
         if (ord($prefix) < 127) {
