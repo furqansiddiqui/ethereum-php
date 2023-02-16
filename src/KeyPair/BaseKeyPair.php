@@ -16,7 +16,6 @@ namespace FurqanSiddiqui\Ethereum\KeyPair;
 
 use FurqanSiddiqui\BIP32\KeyPair\AbstractKeyPair;
 use FurqanSiddiqui\BIP32\KeyPair\PrivateKeyInterface;
-use FurqanSiddiqui\BIP32\KeyPair\PublicKeyInterface;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
@@ -38,11 +37,16 @@ class BaseKeyPair extends AbstractKeyPair
     }
 
     /**
-     * @return \FurqanSiddiqui\Ethereum\KeyPair\PublicKey|\FurqanSiddiqui\BIP32\KeyPair\PublicKeyInterface
+     * @return \FurqanSiddiqui\Ethereum\KeyPair\PublicKey
+     * @throws \FurqanSiddiqui\Ethereum\Exception\KeyPairException
      */
-    public function publicKey(): PublicKey|PublicKeyInterface
+    public function publicKey(): PublicKey
     {
-        return parent::publicKey();
+        if (!$this->pub) {
+            $this->pub = new PublicKey($this->eth, $this->prv->eccPrivateKey->public());
+        }
+
+        return $this->pub;
     }
 
     /**
