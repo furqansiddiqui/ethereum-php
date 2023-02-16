@@ -18,6 +18,7 @@ use Comely\Buffer\AbstractByteArray;
 use Comely\Buffer\BigInteger\BigEndian;
 use Comely\Buffer\Bytes32;
 use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
+use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\TxDecodeException;
 use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
 use FurqanSiddiqui\Ethereum\RLP\Mapper;
@@ -36,20 +37,21 @@ abstract class AbstractTransaction implements RLP_Mappable, TransactionInterface
     abstract protected static function Mapper(): Mapper;
 
     /**
+     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
      * @param \Comely\Buffer\AbstractByteArray $raw
      * @return static
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      * @throws \FurqanSiddiqui\Ethereum\Exception\TxDecodeException
      */
-    public static function DecodeRawTransaction(AbstractByteArray $raw): static
+    public static function DecodeRawTransaction(Ethereum $eth, AbstractByteArray $raw): static
     {
         $rlpDecode = RLP::Decode($raw);
         if (!is_array($rlpDecode)) {
             throw new TxDecodeException(sprintf('Expected Array from decoded RLP, got "%s"', gettype($rlpDecode)));
         }
 
-        $tx = new static();
+        $tx = new static($eth);
         $rlpArray = static::Mapper()->createArray($rlpDecode);
         foreach ($rlpArray as $prop => $value) {
             if (!property_exists($tx, $prop)) {
@@ -62,6 +64,33 @@ abstract class AbstractTransaction implements RLP_Mappable, TransactionInterface
         }
 
         return $tx;
+    }
+
+    /**
+     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
+     */
+    public function __construct(public readonly Ethereum $eth)
+    {
+    }
+
+    /**
+     * @return string[]
+     */
+    public function __debugInfo(): array
+    {
+        return [static::class];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSigned(): bool
+    {
+        if ($this->signatureR || $this->signatureS) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

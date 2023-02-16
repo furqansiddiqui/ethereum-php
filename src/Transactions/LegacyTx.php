@@ -14,8 +14,11 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
+use Comely\Buffer\Bytes32;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
+use FurqanSiddiqui\Ethereum\Ethereum;
+use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
 use FurqanSiddiqui\Ethereum\RLP\Mapper;
 
 /**
@@ -40,5 +43,37 @@ class LegacyTx extends AbstractTransaction
     protected static function Mapper(): Mapper
     {
         return TxRLPMapper::LegacyTx();
+    }
+
+    /**
+     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
+     */
+    public function __construct(Ethereum $eth)
+    {
+        parent::__construct($eth);
+        $this->signatureV = $this->eth->network->chainId;
+    }
+
+    /**
+     * @return \Comely\Buffer\Bytes32
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
+     */
+    public function signPreImage(): Bytes32
+    {
+        $unSignedTx = $this->isSigned() ? $this->getUnsigned() : $this;
+        return new Bytes32(Keccak::hash($unSignedTx->encode()->raw(), 256, true));
+    }
+
+    /**
+     * @return $this
+     */
+    public function getUnsigned(): static
+    {
+        $unSigned = clone $this;
+        $unSigned->signatureV = $this->eth->network->chainId;
+        $unSigned->signatureR = null;
+        $unSigned->signatureS = null;
+        return $unSigned;
     }
 }

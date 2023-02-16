@@ -43,15 +43,15 @@ class TxFactory
         $prefix = substr($rawTx->raw(), 0, 1);
         if (ord($prefix) < 127) {
             return match ($prefix) {
-                "\x01" => Type1Tx::DecodeRawTransaction($rawTx),
-                "\x02" => Type2Tx::DecodeRawTransaction($rawTx),
+                "\x01" => Type1Tx::DecodeRawTransaction($this->eth, $rawTx),
+                "\x02" => Type2Tx::DecodeRawTransaction($this->eth, $rawTx),
                 default => throw new TxDecodeException(
                     sprintf('Unsupported transaction envelope prefix "%s"', bin2hex($prefix))
                 )
             };
         }
 
-        return LegacyTx::DecodeRawTransaction($rawTx);
+        return LegacyTx::DecodeRawTransaction($this->eth, $rawTx);
     }
 
     /**
@@ -63,7 +63,7 @@ class TxFactory
      */
     public function decodeLegacy(AbstractByteArray $rawTx): LegacyTx
     {
-        return LegacyTx::DecodeRawTransaction($rawTx);
+        return LegacyTx::DecodeRawTransaction($this->eth, $rawTx);
     }
 
     /**
@@ -75,7 +75,7 @@ class TxFactory
      */
     public function decodeType1(AbstractByteArray $rawTx): Type1Tx
     {
-        return Type1Tx::DecodeRawTransaction($rawTx);
+        return Type1Tx::DecodeRawTransaction($this->eth, $rawTx);
     }
 
     /**
@@ -87,7 +87,7 @@ class TxFactory
      */
     public function decodeType2(AbstractByteArray $rawTx): Type2Tx
     {
-        return Type2Tx::DecodeRawTransaction($rawTx);
+        return Type2Tx::DecodeRawTransaction($this->eth, $rawTx);
     }
 
     /**
@@ -95,7 +95,7 @@ class TxFactory
      */
     public function legacyTx(): LegacyTx
     {
-        return new LegacyTx();
+        return new LegacyTx($this->eth);
     }
 
     /**
@@ -103,7 +103,7 @@ class TxFactory
      */
     public function type1(): Type1Tx
     {
-        return new Type1Tx();
+        return new Type1Tx($this->eth);
     }
 
     /**
@@ -111,6 +111,6 @@ class TxFactory
      */
     public function type2(): Type2Tx
     {
-        return new Type2Tx();
+        return new Type2Tx($this->eth);
     }
 }

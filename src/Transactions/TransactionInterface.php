@@ -17,6 +17,7 @@ namespace FurqanSiddiqui\Ethereum\Transactions;
 use Comely\Buffer\AbstractByteArray;
 use Comely\Buffer\Bytes32;
 use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
+use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
  * Interface TransactionInterface
@@ -25,15 +26,31 @@ use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
 interface TransactionInterface
 {
     /**
+     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
      * @param \Comely\Buffer\AbstractByteArray $raw
      * @return static
      */
-    public static function DecodeRawTransaction(AbstractByteArray $raw): static;
+    public static function DecodeRawTransaction(Ethereum $eth, AbstractByteArray $raw): static;
 
     /**
      * @return \FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded
      */
     public function encode(): RLP_Encoded;
+
+    /**
+     * @return $this
+     */
+    public function getUnsigned(): static;
+
+    /**
+     * @return bool
+     */
+    public function isSigned(): bool;
+
+    /**
+     * @return \Comely\Buffer\Bytes32
+     */
+    public function signPreImage(): Bytes32;
 
     /**
      * @return \Comely\Buffer\Bytes32

@@ -41,11 +41,9 @@ class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
      * @param \FurqanSiddiqui\Ethereum\Transactions\AbstractTransaction $tx
      * @return \FurqanSiddiqui\Ethereum\Buffers\Signature
      * @throws \FurqanSiddiqui\ECDSA\Exception\SignatureException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */
     public function signTransaction(AbstractTransaction $tx): Signature
     {
-        return new Signature($this->eccPrivateKey->signRecoverable($tx->hash()), $this->eth);
+        return new Signature($this->eccPrivateKey->signRecoverable($tx->signPreImage()), $this->eth);
     }
 }
