@@ -89,8 +89,6 @@ class EIP1559Tx extends AbstractTransaction
     {
         $unSignedTx = $this->isSigned() ? $this->getUnsigned() : $this;
         $encoded = substr($unSignedTx->encode()->raw(), 0, -3); // Remove signature yParity, r & s
-        var_dump(__METHOD__);
-        var_dump(bin2hex($encoded));
         return new Bytes32(Keccak::hash($encoded, 256, true));
     }
 
