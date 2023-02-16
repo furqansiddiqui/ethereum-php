@@ -71,13 +71,14 @@ class EIP2718Tx extends AbstractTransaction
     }
 
     /**
+     * @param \FurqanSiddiqui\Ethereum\RLP\Mapper|null $mapper
      * @return \FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */
-    public function encode(): RLP_Encoded
+    public function encode(?Mapper $mapper = null): RLP_Encoded
     {
-        $buffer = parent::encode();
+        $buffer = parent::encode($mapper);
         return $buffer->prepend("\x01");
     }
 
@@ -89,7 +90,7 @@ class EIP2718Tx extends AbstractTransaction
     public function signPreImage(): Bytes32
     {
         $unSignedTx = $this->isSigned() ? $this->getUnsigned() : $this;
-        $encoded = substr($unSignedTx->encode()->raw(), 0, -3); // Remove signature yParity, r & s
+        $encoded = $unSignedTx->encode(TxRLPMapper::EIP1559Tx_Unsigned())->raw();
         return new Bytes32(Keccak::hash($encoded, 256, true));
     }
 

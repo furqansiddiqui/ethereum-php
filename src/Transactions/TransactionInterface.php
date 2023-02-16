@@ -33,11 +33,6 @@ interface TransactionInterface
     public static function DecodeRawTransaction(Ethereum $eth, AbstractByteArray $raw): static;
 
     /**
-     * @return \FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded
-     */
-    public function encode(): RLP_Encoded;
-
-    /**
      * @return $this
      */
     public function getUnsigned(): static;

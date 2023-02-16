@@ -94,13 +94,18 @@ abstract class AbstractTransaction implements RLP_Mappable, TransactionInterface
     }
 
     /**
+     * @param \FurqanSiddiqui\Ethereum\RLP\Mapper|null $mapper
      * @return \FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */
-    public function encode(): RLP_Encoded
+    public function encode(?Mapper $mapper = null): RLP_Encoded
     {
-        $encoded = static::Mapper()->encode($this);
+        if (!$mapper) {
+            $mapper = static::Mapper();
+        }
+
+        $encoded = $mapper->encode($this);
         $encodedLen = $encoded->len();
 
         if ($encodedLen <= 55) {
