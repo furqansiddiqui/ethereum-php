@@ -149,7 +149,7 @@ abstract class Abstract_JSON_RPC_2
         // Error Msg/Code
         if (isset($body["error"])) {
             throw new RPC_ResponseException(
-                strval($body["error"]["code"] ?? ""),
+                strval($body["error"]["message"] ?? ""),
                 intval($body["error"]["code"] ?? -1),
                 method: $method
             );
