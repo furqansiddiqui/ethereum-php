@@ -43,7 +43,9 @@ abstract class AbstractNetworkConfig extends \FurqanSiddiqui\BIP32\Networks\Abst
             $bip32_exportPrivateKeyPrefix,
             $bip32_exportPublicKeyPrefix,
             $bip32_hardenedIndexBeginsFrom,
-            $bip32_hmacSeed
+            $bip32_hmacSeed,
+            "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",
+            true
         );
     }
 
@@ -71,7 +73,7 @@ abstract class AbstractNetworkConfig extends \FurqanSiddiqui\BIP32\Networks\Abst
             bip32_exportPrivateKeyPrefix: $bip32_exportPrivateKeyPrefix ?? new Bits32(hex2bin("0488ADE4")),
             bip32_exportPublicKeyPrefix: $bip32_exportPublicKeyPrefix ?? new Bits32(hex2bin("0488B21E")),
             bip32_hardenedIndexBeginsFrom: $bip32_hardenedIndexBeginsFrom,
-            bip32_hmacSeed: $bip32_hmacSeed
+            bip32_hmacSeed: $bip32_hmacSeed,
         );
     }
 
