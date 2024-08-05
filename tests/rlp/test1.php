@@ -14,8 +14,10 @@ declare(strict_types=1);
 
 require "../../vendor/autoload.php";
 
-use FurqanSiddiqui\Ethereum\RLP\RLP as RLP;
-use Comely\Buffer\Buffer as Buffer;
+use FurqanSiddiqui\Ethereum\RLP\RLP;
+use Charcoal\Buffers\Buffer;
+use Charcoal\Adapters\GMP\BigInteger;
+use Charcoal\Buffers\ByteOrder\BigEndian;
 
 function utf8ize($mixed)
 {
@@ -59,7 +61,7 @@ foreach ($vector as $testName => $test) {
 
     if (is_string($testIn)) {
         if (preg_match('/^#[0-9]+$/', $testIn)) {
-            $testIn = new \Comely\Buffer\BigInteger(substr($testIn, 1));
+            $testIn = new BigInteger(substr($testIn, 1));
         }
     }
 
@@ -70,8 +72,8 @@ foreach ($vector as $testName => $test) {
 
 
     $part["result"]["decoded"] = RLP::Decode(Buffer::fromBase16($testOut));
-    if ($testIn instanceof \Comely\Buffer\BigInteger) {
-        $part["result"]["decoded"] = "#" . gmp_strval(\Comely\Buffer\BigInteger\BigEndian::GMP_Unpack($part["result"]["decoded"]), 10);
+    if ($testIn instanceof BigInteger) {
+        $part["result"]["decoded"] = "#" . gmp_strval(BigEndian::GMP_Unpack($part["result"]["decoded"]), 10);
     }
 
     if ($testOut === "0x80") {
@@ -92,7 +94,7 @@ foreach ($vector as $testName => $test) {
 
     if (!$part["decodeSuccess"]) {
         if (is_string($part["result"]["decoded"]) && strlen($part["result"]["decoded"]) <= 8) { // Possibly an integer?
-            $asIntByte = gmp_intval(\Comely\Buffer\BigInteger\BigEndian::GMP_Unpack($part["result"]["decoded"]));
+            $asIntByte = gmp_intval(BigEndian::GMP_Unpack($part["result"]["decoded"]));
             if ($asIntByte === $test["in"]) {
                 $part["result"]["decoded"] = $asIntByte;
             }
