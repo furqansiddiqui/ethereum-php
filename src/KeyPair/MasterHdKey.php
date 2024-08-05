@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\Buffer\Bytes32;
+use Charcoal\Buffers\Frames\Bytes32;
 use FurqanSiddiqui\BIP32\BIP32;
 use FurqanSiddiqui\BIP32\Buffers\Bits32;
 use FurqanSiddiqui\BIP32\Exception\UnserializeBIP32KeyException;
@@ -24,7 +24,7 @@ use FurqanSiddiqui\Ethereum\Ethereum;
  * Class MasterKeyPair
  * @package FurqanSiddiqui\Ethereum\KeyPair
  */
-class MasterHDKey extends HDKey
+class MasterHdKey extends HdKey
 {
     /**
      * @param \FurqanSiddiqui\BIP32\BIP32 $bip32
@@ -32,7 +32,7 @@ class MasterHDKey extends HDKey
      * @param int $depth
      * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $childNum
      * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $parentPubFp
-     * @param \Comely\Buffer\Bytes32 $chainCode
+     * @param \Charcoal\Buffers\Frames\Bytes32 $chainCode
      * @param \FurqanSiddiqui\Ethereum\Ethereum|null $eth
      * @throws \FurqanSiddiqui\BIP32\Exception\UnserializeBIP32KeyException
      */

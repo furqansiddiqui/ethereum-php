@@ -14,8 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Contracts;
 
-use Comely\Buffer\BigInteger\BigEndian;
-use Comely\Utils\ASCII;
+use Charcoal\Buffers\ByteOrder\BigEndian;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Contracts\ABI\ContractMethod;
 use FurqanSiddiqui\Ethereum\Contracts\ABI\ContractMethodParam;
@@ -28,7 +27,7 @@ use FurqanSiddiqui\Ethereum\RPC\Abstract_RPC_Client;
  * Class Contract
  * @package FurqanSiddiqui\Ethereum\Contracts
  */
-class DeployedContract
+readonly class DeployedContract
 {
     /**
      * @param \FurqanSiddiqui\Ethereum\Contracts\Contract $contract
@@ -36,9 +35,9 @@ class DeployedContract
      * @param \FurqanSiddiqui\Ethereum\RPC\Abstract_RPC_Client $rpc
      */
     public function __construct(
-        public readonly Contract            $contract,
-        public readonly EthereumAddress     $deployedAt,
-        public readonly Abstract_RPC_Client $rpc
+        public Contract            $contract,
+        public EthereumAddress     $deployedAt,
+        public Abstract_RPC_Client $rpc
     )
     {
     }
@@ -116,7 +115,7 @@ class DeployedContract
                 $value = $value === true ? 1 : 0;
                 break;
             case "string":
-                $value = ASCII::toHex($value);
+                $value = $this->asciiEncode($value);
                 break;
             default:
                 throw new Contract_ABIException(sprintf('Cannot encode value of type "%s"', $type));
@@ -193,9 +192,53 @@ class DeployedContract
             "hash", "address" => "0x" . $encoded,
             "uint", "int" => gmp_strval(BigEndian::GMP_Unpack(hex2bin($encoded)), 10),
             "bool" => boolval($encoded),
-            "string" => ASCII::fromHex($encoded),
+            "string" => $this->asciiDecode($encoded),
             default => throw new Contract_ABIException(sprintf('Cannot encode value of type "%s"', $type)),
         };
+    }
+
+    /**
+     * @param string $hex
+     * @return string
+     */
+    protected function asciiDecode(string $hex): string
+    {
+        if (str_starts_with($hex, "0x")) {
+            $hex = substr($hex, 2); // If any, removes the "0x" prefix
+        }
+
+        if (!preg_match('/^[a-f0-9]+$/i', $hex)) {
+            throw new \InvalidArgumentException('Cannot decoded non-hexadecimal value to ASCII');
+        }
+
+        if (strlen($hex) % 2 !== 0) {
+            $hex = "0" . $hex;
+        }
+
+        $str = "";
+        for ($i = 0; $i < strlen($hex) - 1; $i += 2) {
+            $str .= chr(hexdec($hex[$i] . $hex[$i + 1]));
+        }
+
+        return $str;
+    }
+
+    /**
+     * @param string $ascii
+     * @return string
+     */
+    protected function asciiEncode(string $ascii): string
+    {
+        if (!preg_match('/^[\x00-\x7F]*$/', $ascii)) {
+            throw new \InvalidArgumentException('Cannot encode UTF-8 string into hexadecimals');
+        }
+
+        $hex = "";
+        for ($i = 0; $i < strlen($ascii); $i++) {
+            $hex .= str_pad(dechex(ord($ascii[$i])), 2, "0", STR_PAD_LEFT);
+        }
+
+        return $hex;
     }
 
     /**

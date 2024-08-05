@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\Buffer\Buffer;
+use Charcoal\Buffers\Buffer;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\KeyPairException;
@@ -24,18 +24,15 @@ use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
  * Class PublicKey
  * @package FurqanSiddiqui\Ethereum\KeyPair
  */
-class PublicKey extends \FurqanSiddiqui\BIP32\KeyPair\PublicKey
+readonly class PublicKey extends \FurqanSiddiqui\BIP32\KeyPair\PublicKey
 {
-    /** @var \FurqanSiddiqui\Ethereum\Buffers\EthereumAddress|null */
-    private ?EthereumAddress $address = null;
-
     /**
      * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
      * @param \FurqanSiddiqui\ECDSA\ECC\PublicKey $eccPublicKey
      * @throws \FurqanSiddiqui\Ethereum\Exception\KeyPairException
      */
     public function __construct(
-        public readonly Ethereum            $eth,
+        public Ethereum                     $eth,
         \FurqanSiddiqui\ECDSA\ECC\PublicKey $eccPublicKey
     )
     {
@@ -50,12 +47,7 @@ class PublicKey extends \FurqanSiddiqui\BIP32\KeyPair\PublicKey
      */
     public function address(): EthereumAddress
     {
-        if ($this->address) {
-            return $this->address;
-        }
-
         $bn = Buffer::fromBase16($this->eccPublicKey->x . $this->eccPublicKey->y);
-        $this->address = new EthereumAddress(substr(Keccak::hash($bn->raw(), 256, true), -20));
-        return $this->address;
+        return new EthereumAddress(substr(Keccak::hash($bn->raw(), 256, true), -20));
     }
 }

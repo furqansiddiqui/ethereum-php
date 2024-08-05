@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Buffers;
 
-use Comely\Buffer\AbstractFixedLenBuffer;
+use Charcoal\Buffers\AbstractFixedLenBuffer;
 use FurqanSiddiqui\Ethereum\Exception\InvalidAddressException;
 use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
 
@@ -22,12 +22,11 @@ use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
  * Class EthereumAddress
  * @package FurqanSiddiqui\Ethereum\Buffers
  */
-class EthereumAddress extends AbstractFixedLenBuffer
+class EthereumAddress extends AbstractFixedLenBuffer implements \Stringable
 {
     /** @var int */
-    protected const SIZE = 20;
-    /** @var bool */
-    protected bool $readOnly = true;
+    public const SIZE = 20;
+
     /** @var string|null */
     private ?string $address = null;
     /** @var string|null */

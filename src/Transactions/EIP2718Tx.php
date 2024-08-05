@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
-use Comely\Buffer\AbstractByteArray;
-use Comely\Buffer\Bytes32;
+use Charcoal\Buffers\AbstractByteArray;
+use Charcoal\Buffers\Frames\Bytes32;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
@@ -44,7 +44,7 @@ class EIP2718Tx extends AbstractTransaction
 
     /**
      * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
-     * @param \Comely\Buffer\AbstractByteArray $raw
+     * @param \Charcoal\Buffers\AbstractByteArray $raw
      * @return static
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
@@ -83,7 +83,7 @@ class EIP2718Tx extends AbstractTransaction
     }
 
     /**
-     * @return \Comely\Buffer\Bytes32
+     * @return \Charcoal\Buffers\Frames\Bytes32
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */

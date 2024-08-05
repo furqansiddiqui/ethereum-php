@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum;
 
-use Comely\Buffer\AbstractByteArray;
-use Comely\Buffer\Bytes32;
+use Charcoal\Buffers\AbstractByteArray;
+use Charcoal\Buffers\Frames\Bytes32;
 use FurqanSiddiqui\BIP32\BIP32;
 use FurqanSiddiqui\BIP32\Buffers\BIP32_Provider;
 use FurqanSiddiqui\BIP32\KeyPair\PrivateKeyInterface;
@@ -24,7 +24,7 @@ use FurqanSiddiqui\ECDSA\KeyPair;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Contracts\ABI_Factory;
 use FurqanSiddiqui\Ethereum\Exception\KeyPairException;
-use FurqanSiddiqui\Ethereum\KeyPair\HDFactory;
+use FurqanSiddiqui\Ethereum\KeyPair\HdFactory;
 use FurqanSiddiqui\Ethereum\KeyPair\KeyPairFactory;
 use FurqanSiddiqui\Ethereum\KeyPair\PrivateKey;
 use FurqanSiddiqui\Ethereum\KeyPair\PublicKey;
@@ -35,31 +35,31 @@ use FurqanSiddiqui\Ethereum\Transactions\TxFactory;
  * Class Ethereum
  * @package FurqanSiddiqui\Ethereum
  */
-class Ethereum implements BIP32_Provider
+readonly class Ethereum implements BIP32_Provider
 {
     /** @var \FurqanSiddiqui\BIP32\BIP32 */
-    public readonly BIP32 $bip32;
+    public BIP32 $bip32;
     /** @var \FurqanSiddiqui\Ethereum\KeyPair\KeyPairFactory */
-    public readonly KeyPairFactory $keyPair;
-    /** @var \FurqanSiddiqui\Ethereum\KeyPair\HDFactory */
-    public readonly HDFactory $hdKeyPair;
+    public KeyPairFactory $keyPair;
+    /** @var \FurqanSiddiqui\Ethereum\KeyPair\HdFactory */
+    public HdFactory $hdKeyPair;
     /** @var \FurqanSiddiqui\Ethereum\Contracts\ABI_Factory */
-    public readonly ABI_Factory $abi;
+    public ABI_Factory $abi;
     /** @var \FurqanSiddiqui\Ethereum\Transactions\TxFactory */
-    public readonly TxFactory $tx;
+    public TxFactory $tx;
 
     /**
      * Ethereum constructor.
      */
     public function __construct(
-        public readonly EllipticCurveInterface $ecc,
-        public readonly AbstractNetworkConfig  $network,
+        public EllipticCurveInterface $ecc,
+        public AbstractNetworkConfig  $network,
     )
     {
         $this->bip32 = new BIP32($this->ecc, $this->network);
         $this->abi = new ABI_Factory();
         $this->keyPair = new KeyPairFactory($this);
-        $this->hdKeyPair = new HDFactory($this);
+        $this->hdKeyPair = new HdFactory($this);
         $this->tx = new TxFactory($this);
     }
 
@@ -74,7 +74,7 @@ class Ethereum implements BIP32_Provider
     }
 
     /**
-     * @param \Comely\Buffer\Bytes32 $entropy
+     * @param \Charcoal\Buffers\Frames\Bytes32 $entropy
      * @return \FurqanSiddiqui\BIP32\KeyPair\PrivateKeyInterface
      * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
      */
@@ -84,7 +84,7 @@ class Ethereum implements BIP32_Provider
     }
 
     /**
-     * @param \Comely\Buffer\AbstractByteArray $compressedPubKey
+     * @param \Charcoal\Buffers\AbstractByteArray $compressedPubKey
      * @return \FurqanSiddiqui\Ethereum\KeyPair\PublicKey
      * @throws \FurqanSiddiqui\Ethereum\Exception\KeyPairException
      */

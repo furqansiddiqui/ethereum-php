@@ -14,11 +14,10 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RLP;
 
-use Comely\Buffer\AbstractByteArray;
-use Comely\Buffer\BigInteger;
-use Comely\Buffer\BigInteger\BigEndian;
-use Comely\Buffer\Buffer;
-use Comely\Buffer\Exception\ByteReaderUnderflowException;
+use Charcoal\Adapters\GMP\BigInteger;
+use Charcoal\Buffers\AbstractByteArray;
+use Charcoal\Buffers\Buffer;
+use Charcoal\Buffers\ByteOrder\BigEndian;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
 use FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException;
 use FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException;
@@ -30,7 +29,7 @@ use FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException;
 class RLP
 {
     /**
-     * @param \Comely\Buffer\AbstractByteArray $encoded
+     * @param \Charcoal\Buffers\AbstractByteArray $encoded
      * @return mixed
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      */
@@ -38,15 +37,14 @@ class RLP
     {
         try {
             return static::_Decode($encoded)[0];
-        } catch (ByteReaderUnderflowException $e) {
+        } catch (\UnderflowException $e) {
             throw new RLP_DecodeException($e->getMessage());
         }
     }
 
     /**
-     * @param \Comely\Buffer\AbstractByteArray $encoded
+     * @param \Charcoal\Buffers\AbstractByteArray $encoded
      * @return array
-     * @throws \Comely\Buffer\Exception\ByteReaderUnderflowException
      */
     private static function _Decode(AbstractByteArray $encoded): array
     {
@@ -103,7 +101,7 @@ class RLP
 
     /**
      * @param mixed $data
-     * @return \Comely\Buffer\AbstractByteArray
+     * @return \Charcoal\Buffers\AbstractByteArray
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      */
     public static function Encode(mixed $data): AbstractByteArray
@@ -113,7 +111,7 @@ class RLP
 
     /**
      * @param array $data
-     * @return \Comely\Buffer\AbstractByteArray
+     * @return \Charcoal\Buffers\AbstractByteArray
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      */
     private static function _Encode(array $data): AbstractByteArray

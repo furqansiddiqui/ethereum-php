@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
-use Comely\Buffer\Bytes32;
+use Charcoal\Buffers\Frames\Bytes32;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
 use FurqanSiddiqui\Ethereum\Ethereum;
@@ -55,7 +55,7 @@ class LegacyTx extends AbstractTransaction
     }
 
     /**
-     * @return \Comely\Buffer\Bytes32
+     * @return \Charcoal\Buffers\Frames\Bytes32
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */

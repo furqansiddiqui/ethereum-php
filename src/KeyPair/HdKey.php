@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\Buffer\Bytes32;
+use Charcoal\Buffers\Frames\Bytes32;
 use FurqanSiddiqui\BIP32\BIP32;
 use FurqanSiddiqui\BIP32\Buffers\BIP32_Provider;
 use FurqanSiddiqui\BIP32\Buffers\Bits32;
@@ -27,7 +27,7 @@ use FurqanSiddiqui\Ethereum\Ethereum;
  * Class KeyPair
  * @package FurqanSiddiqui\Ethereum\KeyPair
  */
-class HDKey extends ExtendedKeyPair
+class HdKey extends ExtendedKeyPair
 {
     /** @var \FurqanSiddiqui\Ethereum\Ethereum */
     public readonly Ethereum $eth;
@@ -57,7 +57,7 @@ class HDKey extends ExtendedKeyPair
      * @param int $depth
      * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $childNum
      * @param \FurqanSiddiqui\BIP32\Buffers\Bits32 $parentPubFp
-     * @param \Comely\Buffer\Bytes32 $chainCode
+     * @param \Charcoal\Buffers\Frames\Bytes32 $chainCode
      * @param \FurqanSiddiqui\Ethereum\Ethereum|null $eth
      */
     public function __construct(
@@ -83,9 +83,9 @@ class HDKey extends ExtendedKeyPair
      * @throws \FurqanSiddiqui\BIP32\Exception\ChildKeyDeriveException
      * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
      */
-    public function derive(int $index, bool $isHardened = false): HDKey
+    public function derive(int $index, bool $isHardened = false): HdKey
     {
-        return HDKey::Unserialize($this->eth, $this->_derive($index, $isHardened));
+        return HdKey::Unserialize($this->eth, $this->_derive($index, $isHardened));
     }
 
     /**
@@ -94,7 +94,7 @@ class HDKey extends ExtendedKeyPair
      * @throws \FurqanSiddiqui\BIP32\Exception\ChildKeyDeriveException
      * @throws \FurqanSiddiqui\BIP32\Exception\ExtendedKeyException
      */
-    public function derivePath($path): HDKey
+    public function derivePath($path): HdKey
     {
         return parent::derivePath($path);
     }

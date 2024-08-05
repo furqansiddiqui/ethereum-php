@@ -20,14 +20,14 @@ use FurqanSiddiqui\Ethereum\Exception\BadWEIAmountException;
  * Class WEIAmount
  * @package FurqanSiddiqui\Ethereum\Buffers
  */
-class WEIAmount
+readonly class WEIAmount
 {
     /** @var \GMP */
-    public readonly \GMP $wei;
+    public \GMP $wei;
     /** @var string */
-    public readonly string $eth;
+    public string $eth;
     /** @var string */
-    public readonly string $gWei;
+    public string $gWei;
 
     /**
      * @param int|string $ethAmount

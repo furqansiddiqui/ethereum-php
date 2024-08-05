@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\KeyPair;
 
-use Comely\Buffer\AbstractByteArray;
-use Comely\Buffer\Bytes32;
+use Charcoal\Buffers\AbstractByteArray;
+use Charcoal\Buffers\Frames\Bytes32;
 use FurqanSiddiqui\BIP39\Mnemonic;
 use FurqanSiddiqui\ECDSA\KeyPair;
 use FurqanSiddiqui\Ethereum\Ethereum;
@@ -24,35 +24,33 @@ use FurqanSiddiqui\Ethereum\Ethereum;
  * Class KeyPairFactory
  * @package FurqanSiddiqui\Ethereum\KeyPair
  */
-class KeyPairFactory
+readonly class KeyPairFactory
 {
     /**
      * KeyPairFactory constructor.
      * @param Ethereum $eth
      */
-    public function __construct(public readonly Ethereum $eth)
+    public function __construct(public Ethereum $eth)
     {
     }
 
     /**
      * @return \FurqanSiddiqui\Ethereum\KeyPair\BaseKeyPair
-     * @throws \FurqanSiddiqui\BIP32\Exception\KeyPairException
      * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
      */
     public function generateSecurePrivateKey(): BaseKeyPair
     {
-        return $this->privateKeyFromEntropy($this->eth->bip32->generateSecureEntropy());
+        return $this->privateKeyFromEntropy(Bytes32::fromRandomBytes());
     }
 
     /**
-     * @param \Comely\Buffer\Bytes32 $entropy
+     * @param \Charcoal\Buffers\Frames\Bytes32 $entropy
      * @return \FurqanSiddiqui\Ethereum\KeyPair\BaseKeyPair
      * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
      */
     public function privateKeyFromEntropy(Bytes32 $entropy): BaseKeyPair
     {
-        $pK = new PrivateKey($this->eth, new KeyPair($this->eth->ecc, $entropy));
-        return new BaseKeyPair($this->eth, $pK);
+        return new BaseKeyPair($this->eth, (new PrivateKey($this->eth, new KeyPair($this->eth->ecc, $entropy))));
     }
 
     /**
@@ -68,7 +66,7 @@ class KeyPairFactory
     }
 
     /**
-     * @param \Comely\Buffer\AbstractByteArray $publicKey
+     * @param \Charcoal\Buffers\AbstractByteArray $publicKey
      * @return \FurqanSiddiqui\Ethereum\KeyPair\PublicKey
      * @throws \FurqanSiddiqui\ECDSA\Exception\KeyPairException
      * @throws \FurqanSiddiqui\Ethereum\Exception\KeyPairException

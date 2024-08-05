@@ -21,7 +21,7 @@ use FurqanSiddiqui\Ethereum\Exception\Contract_ABIException;
  * Class MethodParam
  * @package FurqanSiddiqui\Ethereum\Contracts\ABI
  */
-class ContractMethodParam
+readonly class ContractMethodParam
 {
     /**
      * @param string $name
@@ -29,9 +29,9 @@ class ContractMethodParam
      * @param bool|null $indexed
      */
     public function __construct(
-        public readonly string    $name,
-        public readonly string    $type,
-        public readonly null|bool $indexed,
+        public string    $name,
+        public string    $type,
+        public null|bool $indexed,
     )
     {
     }

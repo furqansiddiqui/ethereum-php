@@ -14,9 +14,9 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
-use Comely\Buffer\AbstractByteArray;
-use Comely\Buffer\BigInteger\BigEndian;
-use Comely\Buffer\Bytes32;
+use Charcoal\Buffers\AbstractByteArray;
+use Charcoal\Buffers\ByteOrder\BigEndian;
+use Charcoal\Buffers\Frames\Bytes32;
 use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
 use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\TxDecodeException;
@@ -38,7 +38,7 @@ abstract class AbstractTransaction implements RLP_Mappable, TransactionInterface
 
     /**
      * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
-     * @param \Comely\Buffer\AbstractByteArray $raw
+     * @param \Charcoal\Buffers\AbstractByteArray $raw
      * @return static
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
@@ -119,7 +119,7 @@ abstract class AbstractTransaction implements RLP_Mappable, TransactionInterface
     }
 
     /**
-     * @return \Comely\Buffer\Bytes32
+     * @return \Charcoal\Buffers\Frames\Bytes32
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */

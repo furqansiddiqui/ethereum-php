@@ -13,17 +13,16 @@
     }
   ],
   "require": {
-    "php-64bit": "^8.1",
+    "php-64bit": "^8.2",
     "ext-openssl": "*",
     "ext-gmp": "*",
     "ext-bcmath": "*",
     "ext-curl": "*",
     "ext-json": "*",
-    "comely-io/buffer-php": "^0.1.14",
-    "comely-io/utils": "^2.0.6",
-    "furqansiddiqui/ecdsa-php": "^0.3.3",
-    "furqansiddiqui/bip39-mnemonic-php": "^0.1.6",
-    "furqansiddiqui/bip32-keypair-php": "^0.3.5"
+    "charcoal-dev/buffers": "^0.1.0",
+    "furqansiddiqui/ecdsa-php": "^0.4.0",
+    "furqansiddiqui/bip32-keypair-php": "^0.4.0",
+    "furqansiddiqui/bip39-mnemonic-php": "^0.2.0"
   },
   "autoload": {
     "psr-4": {

@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
-use Comely\Buffer\AbstractByteArray;
+use Charcoal\Buffers\AbstractByteArray;
 use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\TxDecodeException;
 
@@ -22,17 +22,17 @@ use FurqanSiddiqui\Ethereum\Exception\TxDecodeException;
  * Class TxFactory
  * @package FurqanSiddiqui\Ethereum\Transactions
  */
-class TxFactory
+readonly class TxFactory
 {
     /**
      * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
      */
-    public function __construct(public readonly Ethereum $eth)
+    public function __construct(public Ethereum $eth)
     {
     }
 
     /**
-     * @param \Comely\Buffer\AbstractByteArray $rawTx
+     * @param \Charcoal\Buffers\AbstractByteArray $rawTx
      * @return \FurqanSiddiqui\Ethereum\Transactions\LegacyTx|\FurqanSiddiqui\Ethereum\Transactions\Type1Tx|\FurqanSiddiqui\Ethereum\Transactions\Type2Tx|\FurqanSiddiqui\Ethereum\Transactions\TransactionInterface
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
@@ -55,7 +55,7 @@ class TxFactory
     }
 
     /**
-     * @param \Comely\Buffer\AbstractByteArray $rawTx
+     * @param \Charcoal\Buffers\AbstractByteArray $rawTx
      * @return \FurqanSiddiqui\Ethereum\Transactions\LegacyTx
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
@@ -67,7 +67,7 @@ class TxFactory
     }
 
     /**
-     * @param \Comely\Buffer\AbstractByteArray $rawTx
+     * @param \Charcoal\Buffers\AbstractByteArray $rawTx
      * @return \FurqanSiddiqui\Ethereum\Transactions\Type1Tx
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
@@ -79,7 +79,7 @@ class TxFactory
     }
 
     /**
-     * @param \Comely\Buffer\AbstractByteArray $rawTx
+     * @param \Charcoal\Buffers\AbstractByteArray $rawTx
      * @return \FurqanSiddiqui\Ethereum\Transactions\Type2Tx
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException

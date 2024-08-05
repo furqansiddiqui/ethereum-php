@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RPC;
 
-use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\RPC_ClientException;
 use FurqanSiddiqui\Ethereum\Exception\RPC_CurlException;
 use FurqanSiddiqui\Ethereum\Exception\RPC_RequestException;

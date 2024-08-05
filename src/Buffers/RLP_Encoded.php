@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Buffers;
 
-use Comely\Buffer\Buffer;
+use Charcoal\Buffers\Buffer;
 
 /**
  * Class RLP_Encoded

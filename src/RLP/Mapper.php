@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RLP;
 
-use Comely\Buffer\BigInteger\BigEndian;
+use Charcoal\Buffers\ByteOrder\BigEndian;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;

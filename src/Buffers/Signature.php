@@ -14,23 +14,22 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Buffers;
 
-use Comely\Buffer\AbstractByteArray;
-use FurqanSiddiqui\ECDSA\Signature\SignatureInterface;
+use Charcoal\Buffers\AbstractByteArray;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
  * Class Signature
  * @package FurqanSiddiqui\Ethereum\KeyPair
  */
-class Signature implements SignatureInterface
+readonly class Signature
 {
     /** @var null|int */
-    public readonly ?int $v;
+    public ?int $v;
     /** @var null|bool */
-    public readonly ?bool $yParity;
+    public ?bool $yParity;
 
     /**
-     * @param \Comely\Buffer\AbstractByteArray $signature
+     * @param \Charcoal\Buffers\AbstractByteArray $signature
      * @return static
      * @throws \FurqanSiddiqui\ECDSA\Exception\ECDSA_Exception
      * @throws \FurqanSiddiqui\ECDSA\Exception\SignatureException
@@ -46,8 +45,8 @@ class Signature implements SignatureInterface
      * @param \FurqanSiddiqui\Ethereum\Ethereum|null $eth
      */
     public function __construct(
-        public readonly \FurqanSiddiqui\ECDSA\Signature\Signature $eccSignature,
-        ?Ethereum                                                 $eth = null
+        public \FurqanSiddiqui\ECDSA\Signature\Signature $eccSignature,
+        ?Ethereum                                        $eth = null
     )
     {
         if ($this->eccSignature->recoveryId > -1) {
@@ -62,7 +61,7 @@ class Signature implements SignatureInterface
 
     /**
      * @param int $paddedIntegerSize
-     * @return \Comely\Buffer\AbstractByteArray
+     * @return \Charcoal\Buffers\AbstractByteArray
      */
     public function getDER(int $paddedIntegerSize = 0): AbstractByteArray
     {

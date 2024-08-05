@@ -23,15 +23,15 @@ use FurqanSiddiqui\Ethereum\Transactions\AbstractTransaction;
  * Class PrivateKey
  * @package FurqanSiddiqui\Ethereum\KeyPair
  */
-class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
+readonly class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
 {
     /**
      * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
      * @param \FurqanSiddiqui\ECDSA\KeyPair $eccPrivateKey
      */
     public function __construct(
-        public readonly Ethereum $eth,
-        KeyPair                  $eccPrivateKey
+        public Ethereum $eth,
+        KeyPair         $eccPrivateKey
     )
     {
         parent::__construct($this->eth->bip32, $eccPrivateKey);

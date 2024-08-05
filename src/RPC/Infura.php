@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RPC;
 
-use FurqanSiddiqui\Ethereum\Ethereum;
-
 /**
  * Class Infura
  * @package FurqanSiddiqui\Ethereum\RPC
