@@ -29,6 +29,33 @@ abstract class Abstract_RPC_Client extends Abstract_JSON_RPC_2
 {
     /**
      * @return int
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
+    public function net_version(): int
+    {
+        return intval($this->apiCall("net_version"));
+    }
+
+    /**
+     * @return int
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
+    public function eth_chainId(): int
+    {
+        $chainId = $this->getCleanHexadecimal($this->apiCall("eth_chainId"));
+        if (!$chainId) {
+            throw RPC_ResponseException::InvalidResultDataType("eth_chainId", "Base16", gettype($chainId));
+        }
+
+        return gmp_intval(gmp_init($chainId, 16));
+    }
+
+    /**
+     * @return int
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_RequestException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_ResponseException
