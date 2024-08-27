@@ -26,14 +26,16 @@ class Geth extends Abstract_RPC_Client
     /**
      * @param string $hostname
      * @param int|null $port
+     * @param string|null $caRootFile
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_ClientException
      */
     public function __construct(
         public readonly string $hostname,
         public readonly ?int   $port,
+        ?string                $caRootFile = null,
     )
     {
-        parent::__construct();
+        parent::__construct($caRootFile);
         $serverURL = $this->port ? $this->hostname . ":" . $this->port : $this->hostname;
         if (!preg_match('/^(http|https):\/\//i', $serverURL)) {
             $serverURL = "http://" . $serverURL;
