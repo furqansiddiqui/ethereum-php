@@ -44,6 +44,38 @@ abstract class Abstract_RPC_Client extends Abstract_JSON_RPC_2
      * @throws RPC_ResponseException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
      */
+    public function net_peerCount(): int
+    {
+        $peerCount = $this->getCleanHexadecimal($this->apiCall("net_peerCount"));
+        if (!$peerCount) {
+            throw RPC_ResponseException::InvalidResultDataType("net_peerCount", "Base16", gettype($peerCount));
+        }
+
+        return gmp_intval(gmp_init($peerCount, 16));
+    }
+
+    /**
+     * @return bool
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
+    public function net_listening(): bool
+    {
+        $listening = $this->apiCall("net_listening");
+        if (!is_bool($listening)) {
+            throw RPC_ResponseException::InvalidResultDataType("net_listening", "Bool", gettype($listening));
+        }
+
+        return $listening;
+    }
+
+    /**
+     * @return int
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
     public function eth_chainId(): int
     {
         $chainId = $this->getCleanHexadecimal($this->apiCall("eth_chainId"));
@@ -52,6 +84,38 @@ abstract class Abstract_RPC_Client extends Abstract_JSON_RPC_2
         }
 
         return gmp_intval(gmp_init($chainId, 16));
+    }
+
+    /**
+     * @return int
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
+    public function eth_gasPrice(): int
+    {
+        $gasPrice = $this->getCleanHexadecimal($this->apiCall("eth_gasPrice"));
+        if (!$gasPrice) {
+            throw RPC_ResponseException::InvalidResultDataType("eth_gasPrice", "Base16", gettype($gasPrice));
+        }
+
+        return gmp_intval(gmp_init($gasPrice, 16));
+    }
+
+    /**
+     * @return false|array
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
+    public function eth_syncing(): false|array
+    {
+        $syncing = $this->apiCall("eth_syncing");
+        if (!is_bool($syncing) && !is_array($syncing)) {
+            throw RPC_ResponseException::InvalidResultDataType("eth_syncing", "bool|Object", gettype($syncing));
+        }
+
+        return $syncing;
     }
 
     /**
@@ -113,6 +177,22 @@ abstract class Abstract_RPC_Client extends Abstract_JSON_RPC_2
         } catch (BadWEIAmountException) {
             throw new RPC_ResponseException('Cannot decode wei amount', method: "eth_getBalance");
         }
+    }
+
+    /**
+     * @return string
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
+    public function web3_clientVersion(): string
+    {
+        $web3Client = $this->apiCall("web3_clientVersion");
+        if (!$web3Client || !is_string($web3Client)) {
+            throw RPC_ResponseException::InvalidResultDataType("web3_clientVersion", "string", gettype($web3Client));
+        }
+
+        return $web3Client;
     }
 
     /**
