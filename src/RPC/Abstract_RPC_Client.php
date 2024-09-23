@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\RPC;
 
 use Charcoal\Buffers\ByteOrder\BigEndian;
-use Charcoal\Buffers\Frames\Bytes32;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
 use FurqanSiddiqui\Ethereum\Exception\BadWEIAmountException;
