@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\RPC;
 
 use Charcoal\Buffers\ByteOrder\BigEndian;
+use Charcoal\Buffers\Frames\Bytes32;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
 use FurqanSiddiqui\Ethereum\Exception\BadWEIAmountException;
@@ -132,6 +133,30 @@ abstract class Abstract_RPC_Client extends Abstract_JSON_RPC_2
         }
 
         return gmp_intval(gmp_init($blockNum, 16));
+    }
+
+    /**
+     * @param string $txId
+     * @return array|null
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
+    public function eth_getTransactionByHash(string $txId): ?array
+    {
+        return $this->apiCall("eth_getTransactionByHash", [$txId]);
+    }
+
+    /**
+     * @param string $txId
+     * @return array|null
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
+    public function eth_getTransactionReceipt(string $txId): ?array
+    {
+        return $this->apiCall("eth_getTransactionReceipt", [$txId]);
     }
 
     /**

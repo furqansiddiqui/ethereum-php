@@ -162,7 +162,7 @@ abstract class Abstract_JSON_RPC_2
         }
 
         // Result
-        if (!isset($body["result"])) {
+        if (!array_key_exists("result", $body)) {
             throw new RPC_RequestException('No result was received from server');
         }
 
