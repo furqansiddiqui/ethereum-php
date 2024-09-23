@@ -15,7 +15,7 @@ readonly class Transaction
 {
     public string $from;
     public string $to;
-    public string $transactionHash;
+    public string $hash;
     public WEIAmount $value;
     public int $gas;
     public WEIAmount $gasPrice;
@@ -39,7 +39,7 @@ readonly class Transaction
 
         $this->from = $result["from"];
         $this->to = $result["to"];
-        $this->transactionHash = $result["hash"];
+        $this->hash = $result["hash"];
         $this->value = new WEIAmount($result["value"]);
         $this->gas = gmp_intval(gmp_init($result["gas"], 16));
         $this->gasPrice = new WEIAmount($result["gasPrice"]);
