@@ -22,7 +22,7 @@ readonly class Transaction
     public int $nonce;
     public Buffer $input;
     public ?string $blockHash;
-    public ?string $blockNumber;
+    public ?int $blockNumber;
     public ?int $transactionIndex;
 
     /**
@@ -46,7 +46,7 @@ readonly class Transaction
         $this->nonce = gmp_intval(gmp_init($result["nonce"], 16));
         $this->input = (new Buffer($result["input"]))->readOnly();
         $this->blockHash = $result["blockHash"] ?? null;
-        $this->blockNumber = $result["blockNumber"] ?? null;
+        $this->blockNumber = gmp_intval(gmp_init($result["blockNumber"], 16));
         $this->transactionIndex = isset($result["transactionIndex"]) ?
             gmp_intval(gmp_init($result["transactionIndex"], 16)) : null;
     }
