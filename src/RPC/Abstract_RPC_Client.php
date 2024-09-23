@@ -20,6 +20,8 @@ use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
 use FurqanSiddiqui\Ethereum\Exception\BadWEIAmountException;
 use FurqanSiddiqui\Ethereum\Exception\RPC_RequestException;
 use FurqanSiddiqui\Ethereum\Exception\RPC_ResponseException;
+use FurqanSiddiqui\Ethereum\RPC\Result\Transaction;
+use FurqanSiddiqui\Ethereum\RPC\Result\TxReceipt;
 
 /**
  * Class AbstractRPCClient
@@ -136,26 +138,31 @@ abstract class Abstract_RPC_Client extends Abstract_JSON_RPC_2
 
     /**
      * @param string $txId
-     * @return array|null
+     * @param bool $returnObject
+     * @return array|Transaction|null
+     * @throws BadWEIAmountException
      * @throws RPC_RequestException
      * @throws RPC_ResponseException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
      */
-    public function eth_getTransactionByHash(string $txId): ?array
+    public function eth_getTransactionByHash(string $txId, bool $returnObject = false): null|array|Transaction
     {
-        return $this->apiCall("eth_getTransactionByHash", [$txId]);
+        $txn = $this->apiCall("eth_getTransactionByHash", [$txId]);
+        return $txn && $returnObject ? new Transaction($txn) : $txn;
     }
 
     /**
      * @param string $txId
-     * @return array|null
+     * @param bool $returnObject
+     * @return array|TxReceipt|null
      * @throws RPC_RequestException
      * @throws RPC_ResponseException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
      */
-    public function eth_getTransactionReceipt(string $txId): ?array
+    public function eth_getTransactionReceipt(string $txId, bool $returnObject = false): null|array|TxReceipt
     {
-        return $this->apiCall("eth_getTransactionReceipt", [$txId]);
+        $receipt = $this->apiCall("eth_getTransactionReceipt", [$txId]);
+        return $receipt && $returnObject ? new TxReceipt($receipt) : $receipt;
     }
 
     /**
