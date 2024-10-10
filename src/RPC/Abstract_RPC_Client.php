@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RPC;
 
-use Charcoal\Buffers\ByteOrder\BigEndian;
 use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
 use FurqanSiddiqui\Ethereum\Exception\BadWEIAmountException;
@@ -137,6 +136,28 @@ abstract class Abstract_RPC_Client extends Abstract_JSON_RPC_2
     }
 
     /**
+     * @param int|null $blockNumber
+     * @param bool $fullTx
+     * @return array|null
+     * @throws RPC_RequestException
+     * @throws RPC_ResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPC_CurlException
+     */
+    public function eth_getBlockByNumber(null|int $blockNumber, bool $fullTx = false): ?array
+    {
+        $blockData = $this->apiCall("eth_getBlockByNumber", [$blockNumber > 0 ? $this->int2hex($blockNumber) : "latest", $fullTx]);
+        if (!$blockData) {
+            return null;
+        }
+
+        if (!is_array($blockData)) {
+            throw RPC_ResponseException::InvalidResultDataType("eth_getBlockByNumber", gettype($blockData), "Array");
+        }
+
+        return $blockData;
+    }
+
+    /**
      * @param string $txId
      * @param bool $returnObject
      * @return array|Transaction|null
@@ -248,16 +269,11 @@ abstract class Abstract_RPC_Client extends Abstract_JSON_RPC_2
     }
 
     /**
-     * @param int|string $num
+     * @param int $num
      * @return string
      */
-    private function int2hex(int|string $num): string
+    private function int2hex(int $num): string
     {
-        $hex = bin2hex(BigEndian::GMP_Pack($num));
-        if (strlen($hex) % 2 !== 0) {
-            $hex = "0" . $hex;
-        }
-
-        return "0x" . $hex;
+        return "0x" . gmp_strval(gmp_init($num), 16);
     }
 }
