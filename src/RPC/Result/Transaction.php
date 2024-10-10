@@ -44,7 +44,7 @@ readonly class Transaction
         $this->gas = gmp_intval(gmp_init($result["gas"], 16));
         $this->gasPrice = isset($result["gasPrice"]) ? new WEIAmount($result["gasPrice"]) : null;
         $this->nonce = gmp_intval(gmp_init($result["nonce"], 16));
-        $this->input = (new Buffer($result["input"]))->readOnly();
+        $this->input = !$result["input"] || $result["input"] === "0x" ? new Buffer() : Buffer::fromBase16($result["input"]);
         $this->blockHash = $result["blockHash"] ?? null;
         $this->blockNumber = isset($result["blockNumber"]) ? gmp_intval(gmp_init($result["blockNumber"], 16)) : null;
         $this->transactionIndex = isset($result["transactionIndex"]) ?
