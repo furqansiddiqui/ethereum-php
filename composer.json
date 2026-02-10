@@ -28,5 +28,10 @@
       ]
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "FurqanSiddiqui\\Ethereum\\Tests\\": "tests/"
+    }
+  },
   "minimum-stability": "dev"
 }
