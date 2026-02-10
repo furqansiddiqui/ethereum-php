@@ -14,8 +14,8 @@ namespace FurqanSiddiqui\Ethereum\Codecs\RLP;
 final readonly class RlpField
 {
     public function __construct(
-        public RlpFieldType $type,
-        public string       $name
+        public RlpFieldType|RlpSchema $type,
+        public string                 $name
     )
     {
     }

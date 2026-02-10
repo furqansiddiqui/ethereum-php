@@ -23,4 +23,15 @@ enum RlpFieldType
     case Bytes32;
     case Bool;
     case Include;
+
+    /**
+     * @return bool
+     */
+    public function isString(): bool
+    {
+        return match ($this) {
+            self::String, self::Bytes32 => true,
+            default => false
+        };
+    }
 }
