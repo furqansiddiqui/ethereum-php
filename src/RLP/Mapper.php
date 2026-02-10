@@ -1,29 +1,19 @@
 <?php
 /*
- * This file is a part of "furqansiddiqui/ethereum-php" package.
- * https://github.com/furqansiddiqui/ethereum-php
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/furqansiddiqui/ethereum-php/blob/master/LICENSE
+ * Part of the "furqansiddiqui/ethereum-php" package.
+ * @link https://github.com/furqansiddiqui/ethereum-php
  */
 
 declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\RLP;
 
-use Charcoal\Buffers\ByteOrder\BigEndian;
-use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
-use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
-use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
+use Charcoal\Buffers\Buffer;
+use Charcoal\Contracts\Buffers\ReadableBufferInterface;
+use FurqanSiddiqui\Ethereum\Codecs\RLP\RlpCodec;
 use FurqanSiddiqui\Ethereum\Exception\RLP_MapperException;
+use FurqanSiddiqui\Ethereum\Unit\Wei;
 
-/**
- * Class Mapper
- * @package FurqanSiddiqui\Ethereum\RLP
- */
 class Mapper
 {
     /** @var array */
@@ -154,9 +144,9 @@ class Mapper
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
      */
-    public function encode(RLP_Mappable $object): RLP_Encoded
+    public function encode(RLP_Mappable $object): ReadableBufferInterface
     {
-        $bytes = new RLP_Encoded();
+        $bytes = new Buffer();
         foreach ($this->structure as $prop) {
             /** @var string $key */
             $key = $prop["prop"];
@@ -173,7 +163,7 @@ class Mapper
                 );
             }
 
-            $bytes->append(RLP::Encode($object->$key));
+            $bytes->append(RlpCodec::Encode($object->$key));
         }
 
         return $bytes;
@@ -195,7 +185,7 @@ class Mapper
 
             if (!array_key_exists($i, $buffer)) {
                 throw new RLP_MapperException(
-                    sprintf('Index %d for prop "%s" does not exist in RLP decoded buffer', $i, $key)
+                    sprintf('Index %d for prop "%s" does not exist in RlpCodec decoded buffer', $i, $key)
                 );
             }
 
@@ -227,11 +217,11 @@ class Mapper
 
             if ($type === "wei") {
                 try {
-                    $result[$key] = new WEIAmount(is_int($value) ? $value : BigEndian::GMP_Unpack($value));
+                    $result[$key] = new Wei(is_int($value) ? $value : BigEndian::GMP_Unpack($value));
                     continue;
                 } catch (\Throwable $t) {
                     throw new RLP_MapperException(
-                        sprintf('Cannot map "%s" as WEIAmount; %s %s', $key, get_class($t), $t->getMessage())
+                        sprintf('Cannot map "%s" as Wei; %s %s', $key, get_class($t), $t->getMessage())
                     );
                 }
             }
