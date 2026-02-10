@@ -23,7 +23,6 @@ final readonly class KeypairFactory
 
     /**
      * Generate a public key from a private key.
-     * @api
      */
     public function generatePublicKey(
         #[\SensitiveParameter]
@@ -31,5 +30,22 @@ final readonly class KeypairFactory
     ): SecPublicKey256
     {
         return $this->eth->ecc->generatePublicKey($privateKey);
+    }
+
+    /**
+     * @param SecPublicKey256 $publicKey
+     * @param bool $withChecksum
+     * @return EthereumAddress
+     */
+    public function addressFromPublicKey(
+        SecPublicKey256 $publicKey,
+        bool            $withChecksum = false
+    ): EthereumAddress
+    {
+        if ($publicKey->isCompressed()) {
+            $publicKey = $this->eth->ecc->expandPublicKey($publicKey);
+        }
+
+        return EthereumAddress::fromPublicKey($publicKey, $withChecksum);
     }
 }

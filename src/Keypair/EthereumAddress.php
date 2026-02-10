@@ -98,7 +98,6 @@ final readonly class EthereumAddress implements \Stringable
     /**
      * @param mixed $address
      * @return bool
-     * @api
      */
     public static function isValidChecksumAddress(mixed $address): bool
     {
@@ -109,7 +108,6 @@ final readonly class EthereumAddress implements \Stringable
     /**
      * @param string $address
      * @return string
-     * @api
      */
     public static function calculateChecksum(string $address): string
     {
