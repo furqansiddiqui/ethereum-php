@@ -1,38 +1,33 @@
 <?php
 /*
- * This file is a part of "furqansiddiqui/ethereum-php" package.
- * https://github.com/furqansiddiqui/ethereum-php
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/furqansiddiqui/ethereum-php/blob/master/LICENSE
+ * Part of the "furqansiddiqui/ethereum-php" package.
+ * @link https://github.com/furqansiddiqui/ethereum-php
  */
 
 declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
-use Charcoal\Buffers\AbstractByteArray;
-use Charcoal\Buffers\Frames\Bytes32;
+use Charcoal\Buffers\Types\Bytes32;
+use Charcoal\Contracts\Buffers\ReadableBufferInterface;
 use FurqanSiddiqui\Ethereum\Ethereum;
 
 /**
- * Interface TransactionInterface
- * @package FurqanSiddiqui\Ethereum\Transactions
+ * Represents a standardized structure for handling transactions.
+ * Provides methods to decode raw transactions, retrieve an unsigned version,
+ * check the signature status, and generate transaction-related hashes.
  */
 interface TransactionInterface
 {
     /**
-     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
-     * @param \Charcoal\Buffers\AbstractByteArray $raw
+     * @param Ethereum $eth
+     * @param ReadableBufferInterface $raw
      * @return static
      */
-    public static function DecodeRawTransaction(Ethereum $eth, AbstractByteArray $raw): static;
+    public static function decodeRawTransaction(Ethereum $eth, ReadableBufferInterface $raw): static;
 
     /**
-     * @return $this
+     * @return static
      */
     public function getUnsigned(): static;
 
@@ -42,12 +37,12 @@ interface TransactionInterface
     public function isSigned(): bool;
 
     /**
-     * @return \Charcoal\Buffers\Frames\Bytes32
+     * @return Bytes32
      */
     public function signPreImage(): Bytes32;
 
     /**
-     * @return \Charcoal\Buffers\Frames\Bytes32
+     * @return Bytes32
      */
     public function hash(): Bytes32;
 }
