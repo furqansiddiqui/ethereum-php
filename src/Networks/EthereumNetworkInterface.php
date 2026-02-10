@@ -1,4 +1,9 @@
 <?php
+/*
+ * Part of the "furqansiddiqui/ethereum-php" package.
+ * @link https://github.com/furqansiddiqui/ethereum-php
+ */
+
 declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Networks;
