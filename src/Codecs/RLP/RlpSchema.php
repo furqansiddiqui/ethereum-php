@@ -40,20 +40,71 @@ final class RlpSchema
      */
     public function encode(RlpEncodableInterface $object): ReadableBufferInterface
     {
+        return RlpCodec::encode($this->encodeItems($object));
+    }
+
+    /**
+     * @param RlpEncodableInterface $object
+     * @return array<int,mixed>
+     */
+    private function encodeItems(RlpEncodableInterface $object): array
+    {
         $items = [];
+
         foreach ($this->fields as $field) {
             if ($field->type instanceof RlpFieldType && $field->type === RlpFieldType::Ignore) {
                 continue;
             }
 
             if (!property_exists($object, $field->name)) {
-                throw new \OutOfBoundsException(sprintf('Property "%s" not found in %s', $field->name, $object::class));
+                throw new \OutOfBoundsException(
+                    sprintf('Property "%s" not found in %s', $field->name, $object::class)
+                );
             }
 
-            $items[] = $object->{$field->name};
+            $value = $object->{$field->name};
+
+            // Child schema
+            if ($field->type instanceof self) {
+                $items[] = is_array($value) ? $value : $field->type->encodeItems($value);
+                continue;
+            }
+
+            // EthereumAddress
+            if ($field->type === RlpFieldType::Address) {
+                if (!$value instanceof EthereumAddress) {
+                    throw new \InvalidArgumentException(
+                        sprintf('Field "%s" expects EthereumAddress', $field->name));
+                }
+
+                $items[] = $value->binary->bytes();
+                continue;
+            }
+
+            // Bytes32
+            if ($field->type === RlpFieldType::Bytes32) {
+                if (!$value instanceof Bytes32) {
+                    throw new \InvalidArgumentException(sprintf('Field "%s" expects Bytes32', $field->name));
+                }
+
+                $items[] = $value->bytes();
+                continue;
+            }
+
+            // Wei Unit
+            if ($field->type === RlpFieldType::Wei) {
+                if (!$value instanceof Wei) {
+                    throw new \InvalidArgumentException(sprintf('Field "%s" expects Wei', $field->name));
+                }
+
+                $items[] = $value->wei;
+                continue;
+            }
+
+            $items[] = $value;
         }
 
-        return RlpCodec::encode($items);
+        return $items;
     }
 
     /**
