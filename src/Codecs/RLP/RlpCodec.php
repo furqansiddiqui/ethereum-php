@@ -77,9 +77,9 @@ final readonly class RlpCodec
 
     /**
      * @param array $data
-     * @return ReadableBufferInterface
+     * @return Buffer
      */
-    public static function encode(array $data): ReadableBufferInterface
+    public static function encode(array $data): Buffer
     {
         $buffer = new Buffer();
         foreach ($data as $value) {

@@ -8,9 +8,9 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Codecs\RLP;
 
+use Charcoal\Buffers\Buffer;
 use Charcoal\Buffers\Types\Bytes20;
 use Charcoal\Buffers\Types\Bytes32;
-use Charcoal\Contracts\Buffers\ReadableBufferInterface;
 use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Unit\Wei;
 
@@ -36,9 +36,9 @@ final class RlpSchema
 
     /**
      * @param RlpEncodableInterface $object
-     * @return ReadableBufferInterface
+     * @return Buffer
      */
-    public function encode(RlpEncodableInterface $object): ReadableBufferInterface
+    public function encode(RlpEncodableInterface $object): Buffer
     {
         return RlpCodec::encode($this->encodeItems($object));
     }
