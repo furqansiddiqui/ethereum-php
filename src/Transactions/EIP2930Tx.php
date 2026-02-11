@@ -18,17 +18,12 @@ use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Unit\Wei;
 
 /**
- * Represents an EIP-1559 Ethereum transaction.
- * This class extends the AbstractEthereumTransaction to handle the specifics
- * of EIP-1559 transactions, including fields such as maxPriorityFeePerGas,
- * maxFeePerGas, and the access list. It supports encoding, decoding, and
- * signing of transactions.
+ * Represents an Ethereum EIP-2930 typed transaction.
  */
-class EIP1559Tx extends AbstractEthereumTransaction
+class EIP2930Tx extends AbstractEthereumTransaction
 {
     public ?int $nonce = null;
-    public ?Wei $maxPriorityFeePerGas = null;
-    public ?Wei $maxFeePerGas = null;
+    public ?Wei $gasPrice = null;
     public ?int $gasLimit = null;
     public ?EthereumAddress $to = null;
     public ?Wei $value = null;
@@ -44,8 +39,8 @@ class EIP1559Tx extends AbstractEthereumTransaction
     public static function decodeRawTransaction(int $chainId, ReadableBufferInterface $raw): static
     {
         $raw = $raw->bytes();
-        if ($raw[0] !== "\x02") {
-            throw new \InvalidArgumentException("Bad prefix for Type2/EIP1559 transaction: " . bin2hex($raw[0]));
+        if ($raw[0] !== "\x01") {
+            throw new \InvalidArgumentException("Bad prefix for Type1/EIP2930 transaction: " . bin2hex($raw[0]));
         }
 
         return parent::decodeRawTransaction($chainId, new Buffer(substr($raw, 1)));
@@ -56,17 +51,7 @@ class EIP1559Tx extends AbstractEthereumTransaction
      */
     protected static function getRlpSchema(): RlpSchema
     {
-        return TxRlpSchema::eip1559Tx();
-    }
-
-    /**
-     * @return Bytes32
-     */
-    public function signPreImage(): Bytes32
-    {
-        $unSignedTx = $this->isSigned() ? $this->getUnsigned() : $this;
-        $encoded = $unSignedTx->encode(TxRlpSchema::eip1559TxUnsigned())->bytes();
-        return new Bytes32(Keccak256::hash($encoded, true));
+        return TxRlpSchema::eip2930Tx();
     }
 
     /**
@@ -75,7 +60,17 @@ class EIP1559Tx extends AbstractEthereumTransaction
      */
     public function encode(?RlpSchema $schema = null): Buffer
     {
-        return parent::encode($schema)->prepend("\x02");
+        return parent::encode($schema)->prepend("\x01");
+    }
+
+    /**
+     * @return Bytes32
+     */
+    public function signPreImage(): Bytes32
+    {
+        $unSignedTx = $this->isSigned() ? $this->getUnsigned() : $this;
+        $encoded = $unSignedTx->encode(TxRlpSchema::eip2930TxUnsigned())->bytes();
+        return new Bytes32(Keccak256::hash($encoded, true));
     }
 
     /**

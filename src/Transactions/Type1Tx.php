@@ -1,13 +1,7 @@
 <?php
 /*
- * This file is a part of "furqansiddiqui/ethereum-php" package.
- * https://github.com/furqansiddiqui/ethereum-php
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/furqansiddiqui/ethereum-php/blob/master/LICENSE
+ * Part of the "furqansiddiqui/ethereum-php" package.
+ * @link https://github.com/furqansiddiqui/ethereum-php
  */
 
 declare(strict_types=1);
@@ -15,10 +9,11 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
 /**
- * Class Type1Tx
- * @package FurqanSiddiqui\Ethereum\Transactions
+ * Represents a Type 1 Ethereum transaction that extends the EIP-2930 specification.
+ * This class inherits functionality and structure defined for EIP-2930 transactions
+ * while enabling additional behaviors or characteristics specific to Type 1.
  */
-class Type1Tx extends EIP2718Tx
+final class Type1Tx extends EIP2930Tx
 {
 }
 
