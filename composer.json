@@ -19,6 +19,7 @@
     "ext-bcmath": "*",
     "ext-curl": "*",
     "ext-json": "*",
+    "charcoal-dev/http-client": "^0.2.13",
     "furqansiddiqui/blockchain-core-php": "dev-main"
   },
   "autoload": {

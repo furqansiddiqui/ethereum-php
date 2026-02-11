@@ -13,6 +13,7 @@ use Charcoal\Http\Client\HttpClient;
 use Charcoal\Http\Commons\Enums\HttpMethod;
 use FurqanSiddiqui\Ethereum\Rpc\Traits\EthereumApiTrait;
 use FurqanSiddiqui\Ethereum\Rpc\Traits\NetworkApiTrait;
+use FurqanSiddiqui\Ethereum\Rpc\Traits\NormalizeBase16Trait;
 use FurqanSiddiqui\Ethereum\Rpc\Traits\Web3ApiTrait;
 
 /**
@@ -23,6 +24,7 @@ abstract class AbstractRpcClient
     use NetworkApiTrait;
     use EthereumApiTrait;
     use Web3ApiTrait;
+    use NormalizeBase16Trait;
 
     protected private(set) HttpClient $httpClient;
     private(set) int $rpcCount = 0;
@@ -80,22 +82,6 @@ abstract class AbstractRpcClient
         }
 
         return $result["result"];
-    }
-
-    /**
-     * @param mixed $in
-     * @return string|null
-     */
-    final protected function normalizeBase16(mixed $in): ?string
-    {
-        if (!is_string($in) || !preg_match("/\A(0x)?[a-fA-F0-9]+\z/", $in)) {
-            return null;
-        }
-
-        $in = strtolower($in);
-        if (str_starts_with($in, "0x")) $in = substr($in, 2);
-        if (strlen($in) % 2 !== 0) $in = "0" . $in;
-        return $in;
     }
 
     /**

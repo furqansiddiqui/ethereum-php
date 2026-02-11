@@ -11,6 +11,7 @@ namespace FurqanSiddiqui\Ethereum\Rpc\Result;
 use Charcoal\Buffers\BufferImmutable;
 use Charcoal\Buffers\Types\Bytes32;
 use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
+use FurqanSiddiqui\Ethereum\Rpc\Traits\NormalizeBase16Trait;
 
 /**
  * Represents a transaction receipt within a blockchain context, providing details
@@ -18,6 +19,8 @@ use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
  */
 final readonly class TxReceipt
 {
+    use NormalizeBase16Trait;
+
     public Bytes32 $transactionHash;
     public int $transactionIndex;
     public Bytes32 $blockHash;
@@ -38,13 +41,13 @@ final readonly class TxReceipt
     {
         if (!isset($result["transactionHash"], $result["transactionIndex"], $result["blockHash"],
             $result["blockNumber"], $result["cumulativeGasUsed"], $result["gasUsed"],
-            $result["logs"],$result["logsBloom"])) {
+            $result["logs"], $result["logsBloom"])) {
             throw new \InvalidArgumentException("Incomplete tx receipt data");
         }
 
-        $this->transactionHash = new Bytes32($result["transactionHash"]);
+        $this->transactionHash = new Bytes32(hex2bin($this->normalizeBase16($result["transactionHash"], true)));
         $this->transactionIndex = gmp_intval(gmp_init($result["transactionIndex"], 16));
-        $this->blockHash = new Bytes32($result["blockHash"]);
+        $this->blockHash = new Bytes32(hex2bin($this->normalizeBase16($result["blockHash"], true)));
         $this->blockNumber = gmp_intval(gmp_init($result["blockNumber"], 16));
         $this->cumulativeGasUsed = gmp_intval(gmp_init($result["cumulativeGasUsed"], 16));
         $this->gasUsed = gmp_intval(gmp_init($result["gasUsed"], 16));
@@ -52,7 +55,7 @@ final readonly class TxReceipt
             ? new EthereumAddress($result["contractAddress"])
             : null;
 
-        $this->logsBloom = new BufferImmutable($result["logsBloom"]);
+        $this->logsBloom = new BufferImmutable(hex2bin($this->normalizeBase16($result["logsBloom"], true)));
         if (isset($result["status"])) {
             $this->status = $result["status"] === "0x1";
         } elseif (isset($result["root"])) {
