@@ -14,6 +14,8 @@ namespace FurqanSiddiqui\Ethereum\Evm;
  */
 final class ContractMethod
 {
+    use ContractEntitySignatureTrait;
+
     /** @var AbiParam[] */
     private(set) array $inputs = [];
     /** @var AbiParam[] */
@@ -21,7 +23,7 @@ final class ContractMethod
 
     public function __construct(
         public readonly ContractMethodType $type,
-        public readonly ?string            $name,
+        public readonly string             $name,
         public readonly ?bool              $isConstant,
         public readonly ?bool              $isPayable,
     )
