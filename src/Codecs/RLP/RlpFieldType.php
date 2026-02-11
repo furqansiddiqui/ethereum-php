@@ -18,6 +18,7 @@ enum RlpFieldType
     case Ignore;
     case Integer;
     case Address;
+    case AddressNullable;
     case Wei;
     case String;
     case Bytes32;

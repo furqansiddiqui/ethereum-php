@@ -71,7 +71,12 @@ final class RlpSchema
             }
 
             // EthereumAddress
-            if ($field->type === RlpFieldType::Address) {
+            if ($field->type === RlpFieldType::Address || $field->type === RlpFieldType::AddressNullable) {
+                if ($field->type === RlpFieldType::AddressNullable && is_null($value)) {
+                    $items[] = "";
+                    continue;
+                }
+
                 if (!$value instanceof EthereumAddress) {
                     throw new \InvalidArgumentException(
                         sprintf('Field "%s" expects EthereumAddress', $field->name));
@@ -197,13 +202,19 @@ final class RlpSchema
             }
 
             // Address
-            if ($field->type === RlpFieldType::Address) {
+            if ($field->type === RlpFieldType::Address || $field->type === RlpFieldType::AddressNullable) {
                 if (!is_string($value)) {
                     throw new \InvalidArgumentException(sprintf('Field "%s" expects decoded value string, got "%s"',
                         $field->name, gettype($value)));
                 }
 
+                if ($field->type === RlpFieldType::AddressNullable && $value === "") {
+                    $result[$field->name] = null;
+                    continue;
+                }
+
                 $result[$field->name] = new EthereumAddress(new Bytes20($value));
+                continue;
             }
 
             // Include (As-is)
