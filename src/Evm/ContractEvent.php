@@ -21,11 +21,11 @@ final class ContractEvent implements ContractDtoInterface
 
     /**
      * @param string $name
-     * @param bool $isAnonymous
+     * @param bool|null $isAnonymous
      */
     public function __construct(
         public readonly string $name,
-        public readonly bool   $isAnonymous,
+        public readonly ?bool  $isAnonymous,
     )
     {
         if ($this->name === "") {
