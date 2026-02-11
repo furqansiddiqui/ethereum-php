@@ -19,30 +19,32 @@ use Charcoal\Contracts\Buffers\ReadableBufferInterface;
 interface EthereumTransactionInterface
 {
     /**
-     * @param string|ReadableBufferInterface $raw
+     * @param ReadableBufferInterface $raw
      * @return static
      */
-    public static function decodeRawTransaction(string|ReadableBufferInterface $raw): static;
+    public static function decodeRawTransaction(ReadableBufferInterface $raw): static;
 
     /**
-     * @return string
+     * @return ReadableBufferInterface
      */
-    public function encode(): string;
+    public function encode(): ReadableBufferInterface;
 
     /**
-     * @return static The unsigned version of this transaction.
+     * @param int $chainId
+     * @return $this The unsigned version of this transaction.
      */
-    public function getUnsigned(): static;
+    public function getUnsigned(int $chainId): static;
+
+    /**
+     * @param int $chainId
+     * @return Bytes32 Keccak256 hash of the UNSIGNED transaction bytes.
+     */
+    public function signPreImage(int $chainId): Bytes32;
 
     /**
      * @return bool Whether the transaction is signed or not.
      */
     public function isSigned(): bool;
-
-    /**
-     * @return Bytes32 Keccak256 hash of the UNSIGNED transaction bytes.
-     */
-    public function signPreImage(): Bytes32;
 
     /**
      * @return Bytes32 Keccak256 hash of the transaction bytes.
