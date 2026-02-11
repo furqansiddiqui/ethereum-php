@@ -11,6 +11,7 @@ namespace FurqanSiddiqui\Ethereum;
 use FurqanSiddiqui\Blockchain\Core\Crypto\Curves\Secp256k1Interface;
 use FurqanSiddiqui\Ethereum\Keypair\KeypairFactory;
 use FurqanSiddiqui\Ethereum\Networks\EthereumNetworkInterface;
+use FurqanSiddiqui\Ethereum\Transactions\TxFactory;
 
 /**
  * Represents the Ethereum class, which provides functionality for interacting
@@ -19,6 +20,7 @@ use FurqanSiddiqui\Ethereum\Networks\EthereumNetworkInterface;
 final readonly class Ethereum
 {
     public KeypairFactory $keypair;
+    public TxFactory $tx;
 
     public function __construct(
         public EthereumNetworkInterface $network,
@@ -26,5 +28,6 @@ final readonly class Ethereum
     )
     {
         $this->keypair = new KeypairFactory($this);
+        $this->tx = new TxFactory($this);
     }
 }
