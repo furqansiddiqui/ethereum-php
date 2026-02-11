@@ -10,6 +10,7 @@ namespace FurqanSiddiqui\Ethereum\Transactions;
 
 use Charcoal\Buffers\Types\Bytes32;
 use Charcoal\Contracts\Buffers\ReadableBufferInterface;
+use FurqanSiddiqui\Blockchain\Core\Signatures\EcdsaSignature256;
 
 /**
  * Represents a standardized structure for handling transactions.
@@ -31,7 +32,7 @@ interface EthereumTransactionInterface
 
     /**
      * @param int $chainId
-     * @return $this The unsigned version of this transaction.
+     * @return static The unsigned version of this transaction.
      */
     public function getUnsigned(int $chainId): static;
 
@@ -50,4 +51,11 @@ interface EthereumTransactionInterface
      * @return Bytes32 Keccak256 hash of the transaction bytes.
      */
     public function hash(): Bytes32;
+
+    /**
+     * @param int $chainId
+     * @param EcdsaSignature256 $signature
+     * @return static New instance of this transaction with signature.
+     */
+    public function withSignature(int $chainId, EcdsaSignature256 $signature): static;
 }

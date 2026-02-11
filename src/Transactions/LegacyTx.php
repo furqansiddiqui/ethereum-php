@@ -1,79 +1,92 @@
 <?php
 /*
- * This file is a part of "furqansiddiqui/ethereum-php" package.
- * https://github.com/furqansiddiqui/ethereum-php
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/furqansiddiqui/ethereum-php/blob/master/LICENSE
+ * Part of the "furqansiddiqui/ethereum-php" package.
+ * @link https://github.com/furqansiddiqui/ethereum-php
  */
 
 declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
-use Charcoal\Buffers\Frames\Bytes32;
-use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
-use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
-use FurqanSiddiqui\Ethereum\Ethereum;
-use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
-use FurqanSiddiqui\Ethereum\RLP\Mapper;
+use Charcoal\Buffers\Types\Bytes32;
+use FurqanSiddiqui\Blockchain\Core\Signatures\EcdsaSignature256;
+use FurqanSiddiqui\Ethereum\Codecs\RLP\RlpSchema;
+use FurqanSiddiqui\Ethereum\Crypto\Keccak256;
+use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
+use FurqanSiddiqui\Ethereum\Unit\Wei;
 
 /**
- * Class LegacyTx
- * @package FurqanSiddiqui\Ethereum\Transactions
+ * Represents a legacy Ethereum transaction.
+ * This class provides functionality for managing and interacting with
+ * Ethereum transactions that use the legacy transaction format, including
+ * nonce, gas price, gas limit, recipient address, value, data, and signature.
  */
-class LegacyTx extends AbstractTransaction
+final class LegacyTx extends AbstractEthereumTransaction
 {
     public ?int $nonce = null;
-    public ?WEIAmount $gasPrice = null;
+    public ?Wei $gasPrice = null;
     public ?int $gasLimit = null;
     public ?EthereumAddress $to = null;
-    public ?WEIAmount $value = null;
+    public ?Wei $value = null;
     public ?string $data = null;
-    public ?int $signatureV = 1;
-    public ?string $signatureR = null;
-    public ?string $signatureS = null;
+    public ?int $signatureV = null;
 
     /**
-     * @return \FurqanSiddiqui\Ethereum\RLP\Mapper
+     * @return RlpSchema
      */
-    protected static function Mapper(): Mapper
+    protected static function getRlpSchema(): RlpSchema
     {
-        return TxRLPMapper::LegacyTx();
+        return TxRlpSchema::legacyTx();
     }
 
     /**
-     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
+     * @param int $chainId
      */
-    public function __construct(Ethereum $eth)
+    public function __construct(int $chainId)
     {
-        parent::__construct($eth);
-        $this->signatureV = $this->eth->network->chainId;
+        $this->signatureV = $chainId;
     }
 
     /**
-     * @return \Charcoal\Buffers\Frames\Bytes32
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
-     */
-    public function signPreImage(): Bytes32
-    {
-        $unSignedTx = $this->isSigned() ? $this->getUnsigned() : $this;
-        return new Bytes32(Keccak::hash($unSignedTx->encode()->raw(), 256, true));
-    }
-
-    /**
+     * @param int $chainId
      * @return $this
+     * @noinspection PhpUnnecessaryStaticReferenceInspection
      */
-    public function getUnsigned(): static
+    public function getUnsigned(int $chainId): static
     {
-        $unSigned = clone $this;
-        $unSigned->signatureV = $this->eth->network->chainId;
-        $unSigned->signatureR = null;
-        $unSigned->signatureS = null;
-        return $unSigned;
+        return clone($this, [
+            "signatureV" => $chainId,
+            "signatureR" => null,
+            "signatureS" => null
+        ]);
+    }
+
+    /**
+     * @param int $chainId
+     * @return Bytes32
+     */
+    public function signPreImage(int $chainId): Bytes32
+    {
+        $unSignedTx = $this->isSigned() ? $this->getUnsigned($chainId) : $this;
+        return new Bytes32(Keccak256::hash($unSignedTx->encode()->bytes(), true));
+    }
+
+    /**
+     * @param int $chainId
+     * @param EcdsaSignature256 $signature
+     * @return static
+     * @noinspection PhpUnnecessaryStaticReferenceInspection
+     */
+    public function withSignature(int $chainId, EcdsaSignature256 $signature): static
+    {
+        if ($signature->recoveryId === null) {
+            throw new \InvalidArgumentException("Signature recovery ID must be set");
+        }
+
+        return clone($this, [
+            "signatureV" => ($chainId * 2) + ($signature->recoveryId + 35),
+            "signatureR" => $signature->r,
+            "signatureS" => $signature->s
+        ]);
     }
 }
