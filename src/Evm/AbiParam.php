@@ -21,5 +21,20 @@ final readonly class AbiParam
         public ?bool   $indexed = null,
     )
     {
+        if (!self::isValidType($type)) {
+            throw new \InvalidArgumentException("Invalid ABI parameter type: " . $this->type);
+        }
+    }
+
+    /**
+     * @param string $type
+     * @return bool
+     */
+    public static function isValidType(string $type): bool
+    {
+        return preg_match(
+                "/\A(address|bool|string|bytes([1-9]|[12]\d|3[0-2])?|function|u?int(8|16|32|64|128|256)?|tuple)(\[(\d+)?])*\z/",
+                $type
+            ) === 1;
     }
 }
