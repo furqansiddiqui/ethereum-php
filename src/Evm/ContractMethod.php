@@ -127,7 +127,7 @@ final class ContractMethod implements ContractDtoInterface
             try {
                 $method->appendInput(AbiParam::fromDto($input));
             } catch (\Throwable $t) {
-                throw new \InvalidArgumentException(sprintf("Invalid input[%d] for ContractMethod: %s", $index, $abi["name"]),
+                throw new \InvalidArgumentException(sprintf("Invalid input[%d] for ContractMethod: %s", $index, $name),
                     previous: $t);
             }
         }
@@ -142,7 +142,7 @@ final class ContractMethod implements ContractDtoInterface
             try {
                 $method->appendOutput(AbiParam::fromDto($output));
             } catch (\Throwable $t) {
-                throw new \InvalidArgumentException(sprintf("Invalid output[%d] for ContractMethod: %s", $index, $abi["name"]),
+                throw new \InvalidArgumentException(sprintf("Invalid output[%d] for ContractMethod: %s", $index, $name),
                     previous: $t);
             }
         }
