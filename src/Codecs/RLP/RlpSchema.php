@@ -92,7 +92,7 @@ final class RlpSchema
                     throw new \InvalidArgumentException(sprintf('Field "%s" expects Bytes32', $field->name));
                 }
 
-                $items[] = $value->bytes();
+                $items[] = $value->getClean(trimLeft: true, trimRight: false) ?: "";
                 continue;
             }
 
@@ -187,12 +187,12 @@ final class RlpSchema
             if ($field->type->isString()) {
                 if (is_string($value)) {
                     if ($field->type === RlpFieldType::Bytes32) {
-                        if (strlen($value) !== 32) {
+                        if (strlen($value) > 32) {
                             throw new \InvalidArgumentException(
                                 sprintf('Field "%s" expects 32-byte string', $field->name));
                         }
 
-                        $result[$field->name] = new Bytes32($value);
+                        $result[$field->name] = Bytes32::setPadded($value);
                         continue;
                     }
 
