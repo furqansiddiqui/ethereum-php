@@ -20,10 +20,10 @@ final class ContractMethod
     private(set) array $outputs = [];
 
     public function __construct(
-        public readonly string  $type,
-        public readonly ?string $name,
-        public readonly ?bool   $isConstant,
-        public readonly ?bool   $isPayable,
+        public readonly ContractMethodType $type,
+        public readonly ?string            $name,
+        public readonly ?bool              $isConstant,
+        public readonly ?bool              $isPayable,
     )
     {
     }
