@@ -1,107 +1,81 @@
 <?php
 /*
- * This file is a part of "furqansiddiqui/ethereum-php" package.
- * https://github.com/furqansiddiqui/ethereum-php
- *
- * Copyright (c) Furqan A. Siddiqui <hello@furqansiddiqui.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code or visit following link:
- * https://github.com/furqansiddiqui/ethereum-php/blob/master/LICENSE
+ * Part of the "furqansiddiqui/ethereum-php" package.
+ * @link https://github.com/furqansiddiqui/ethereum-php
  */
 
 declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
-use Charcoal\Buffers\AbstractByteArray;
-use Charcoal\Buffers\Frames\Bytes32;
-use FurqanSiddiqui\Ethereum\Buffers\EthereumAddress;
-use FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded;
-use FurqanSiddiqui\Ethereum\Buffers\WEIAmount;
-use FurqanSiddiqui\Ethereum\Ethereum;
-use FurqanSiddiqui\Ethereum\Exception\TxDecodeException;
-use FurqanSiddiqui\Ethereum\Packages\Keccak\Keccak;
-use FurqanSiddiqui\Ethereum\RLP\Mapper;
+use Charcoal\Buffers\Buffer;
+use Charcoal\Buffers\Types\Bytes32;
+use Charcoal\Contracts\Buffers\ReadableBufferInterface;
+use FurqanSiddiqui\Blockchain\Core\Signatures\EcdsaSignature256;
+use FurqanSiddiqui\Ethereum\Codecs\RLP\RlpSchema;
+use FurqanSiddiqui\Ethereum\Crypto\Keccak256;
+use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
+use FurqanSiddiqui\Ethereum\Unit\Wei;
 
 /**
- * Class EIP1559Tx
- * @package FurqanSiddiqui\Ethereum\Transactions
+ * Represents an EIP-1559 Ethereum transaction.
+ * This class extends the AbstractEthereumTransaction to handle the specifics
+ * of EIP-1559 transactions, including fields such as maxPriorityFeePerGas,
+ * maxFeePerGas, and the access list. It supports encoding, decoding, and
+ * signing of transactions.
  */
-class EIP1559Tx extends AbstractTransaction
+class EIP1559Tx extends AbstractEthereumTransaction
 {
-    public ?int $chainId = null;
     public ?int $nonce = null;
-    public ?WEIAmount $maxPriorityFeePerGas = null;
-    public ?WEIAmount $maxFeePerGas = null;
+    public ?Wei $maxPriorityFeePerGas = null;
+    public ?Wei $maxFeePerGas = null;
     public ?int $gasLimit = null;
     public ?EthereumAddress $to = null;
-    public ?WEIAmount $value = null;
+    public ?Wei $value = null;
     public ?string $data = null;
     public ?array $accessList = null;
-    public ?bool $signatureParity = null;
-    public ?string $signatureR = null;
-    public ?string $signatureS = null;
+    public ?bool $yParity = null;
 
     /**
-     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
-     * @param \Charcoal\Buffers\AbstractByteArray $raw
+     * @param int $chainId
+     * @param ReadableBufferInterface $raw
      * @return static
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_DecodeException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\TxDecodeException
      */
-    public static function DecodeRawTransaction(Ethereum $eth, AbstractByteArray $raw): static
+    public static function decodeRawTransaction(int $chainId, ReadableBufferInterface $raw): static
     {
-        $raw = $raw->copy();
-        $prefix = $raw->pop(1);
-        if ($prefix !== "\x02") {
-            throw new TxDecodeException(sprintf('Bad prefix "%s" for Type2/EIP1559 transaction', bin2hex($prefix)));
+        $raw = $raw->bytes();
+        if ($raw[0] !== "\x02") {
+            throw new \InvalidArgumentException("Bad prefix for Type2/EIP1559 transaction: " . bin2hex($raw[0]));
         }
 
-        // pop method removed the first prefix byte from buffer.
-        return parent::DecodeRawTransaction($eth, $raw);
+        return parent::decodeRawTransaction($chainId, new Buffer(substr($raw, 1)));
     }
 
     /**
-     * @param \FurqanSiddiqui\Ethereum\Ethereum $eth
+     * @return RlpSchema
      */
-    public function __construct(Ethereum $eth)
+    protected static function getRlpSchema(): RlpSchema
     {
-        parent::__construct($eth);
-        $this->chainId = $this->eth->network->chainId;
+        return TxRlpSchema::eip1559Tx();
     }
 
     /**
-     * @return \FurqanSiddiqui\Ethereum\RLP\Mapper
-     */
-    protected static function Mapper(): Mapper
-    {
-        return TxRLPMapper::EIP1559Tx();
-    }
-
-    /**
-     * @return \Charcoal\Buffers\Frames\Bytes32
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
+     * @return Bytes32
      */
     public function signPreImage(): Bytes32
     {
         $unSignedTx = $this->isSigned() ? $this->getUnsigned() : $this;
-        $encoded = $unSignedTx->encode(TxRLPMapper::EIP1559Tx_Unsigned())->raw();
-        return new Bytes32(Keccak::hash($encoded, 256, true));
+        $encoded = $unSignedTx->encode(TxRlpSchema::eip1559TxUnsigned())->bytes();
+        return new Bytes32(Keccak256::hash($encoded, true));
     }
 
     /**
-     * @param \FurqanSiddiqui\Ethereum\RLP\Mapper|null $mapper
-     * @return \FurqanSiddiqui\Ethereum\Buffers\RLP_Encoded
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_EncodeException
-     * @throws \FurqanSiddiqui\Ethereum\Exception\RLP_MapperException
+     * @param RlpSchema|null $schema
+     * @return Buffer
      */
-    public function encode(?Mapper $mapper = null): RLP_Encoded
+    public function encode(?RlpSchema $schema = null): Buffer
     {
-        $buffer = parent::encode($mapper);
-        return $buffer->prepend("\x02");
+        return parent::encode($schema)->prepend("\x02");
     }
 
     /**
@@ -109,10 +83,27 @@ class EIP1559Tx extends AbstractTransaction
      */
     public function getUnsigned(): static
     {
-        $unSigned = clone $this;
-        $unSigned->signatureParity = false;
-        $unSigned->signatureR = null;
-        $unSigned->signatureS = null;
-        return $unSigned;
+        return clone($this, [
+            "yParity" => false,
+            "signatureR" => null,
+            "signatureS" => null
+        ]);
+    }
+
+    /**
+     * @param EcdsaSignature256 $signature
+     * @return $this
+     */
+    public function withSignature(EcdsaSignature256 $signature): static
+    {
+        if ($signature->recoveryId === null) {
+            throw new \InvalidArgumentException("Signature recovery ID must be set");
+        }
+
+        return clone($this, [
+            "yParity" => ($signature->recoveryId & 1) === 1,
+            "signatureR" => $signature->r,
+            "signatureS" => $signature->s
+        ]);
     }
 }

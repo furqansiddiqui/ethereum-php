@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Transactions;
 
+use Charcoal\Buffers\Buffer;
 use Charcoal\Buffers\Types\Bytes32;
 use Charcoal\Contracts\Buffers\ReadableBufferInterface;
 use FurqanSiddiqui\Ethereum\Codecs\RLP\RlpCodec;
@@ -30,10 +31,18 @@ abstract class AbstractEthereumTransaction implements
     abstract protected static function getRlpSchema(): RlpSchema;
 
     /**
+     * @param int|null $chainId
+     */
+    public function __construct(public ?int $chainId = null)
+    {
+    }
+
+    /**
+     * @param int $chainId
      * @param ReadableBufferInterface $raw
      * @return static
      */
-    public static function decodeRawTransaction(ReadableBufferInterface $raw): static
+    public static function decodeRawTransaction(int $chainId, ReadableBufferInterface $raw): static
     {
         $rlpObject = static::getRlpSchema()->createObject(RlpCodec::decode($raw));
         $tx = new static();
@@ -61,11 +70,13 @@ abstract class AbstractEthereumTransaction implements
     }
 
     /**
-     * @return ReadableBufferInterface
+     * @param RlpSchema|null $schema
+     * @return Buffer
      */
-    public function encode(): ReadableBufferInterface
+    public function encode(?RlpSchema $schema = null): Buffer
     {
-        return static::getRlpSchema()->encode($this);
+        $schema = $schema ?? static::getRlpSchema();
+        return $schema->encode($this);
     }
 
     /**

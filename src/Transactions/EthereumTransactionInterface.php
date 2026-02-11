@@ -20,10 +20,11 @@ use FurqanSiddiqui\Blockchain\Core\Signatures\EcdsaSignature256;
 interface EthereumTransactionInterface
 {
     /**
+     * @param int $chainId
      * @param ReadableBufferInterface $raw
      * @return static
      */
-    public static function decodeRawTransaction(ReadableBufferInterface $raw): static;
+    public static function decodeRawTransaction(int $chainId, ReadableBufferInterface $raw): static;
 
     /**
      * @return ReadableBufferInterface
@@ -31,16 +32,14 @@ interface EthereumTransactionInterface
     public function encode(): ReadableBufferInterface;
 
     /**
-     * @param int $chainId
      * @return static The unsigned version of this transaction.
      */
-    public function getUnsigned(int $chainId): static;
+    public function getUnsigned(): static;
 
     /**
-     * @param int $chainId
      * @return Bytes32 Keccak256 hash of the UNSIGNED transaction bytes.
      */
-    public function signPreImage(int $chainId): Bytes32;
+    public function signPreImage(): Bytes32;
 
     /**
      * @return bool Whether the transaction is signed or not.
@@ -53,9 +52,8 @@ interface EthereumTransactionInterface
     public function hash(): Bytes32;
 
     /**
-     * @param int $chainId
      * @param EcdsaSignature256 $signature
      * @return static New instance of this transaction with signature.
      */
-    public function withSignature(int $chainId, EcdsaSignature256 $signature): static;
+    public function withSignature(EcdsaSignature256 $signature): static;
 }

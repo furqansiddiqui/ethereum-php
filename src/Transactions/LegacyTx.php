@@ -44,47 +44,44 @@ final class LegacyTx extends AbstractEthereumTransaction
      */
     public function __construct(int $chainId)
     {
+        parent::__construct($chainId);
         $this->signatureV = $chainId;
     }
 
     /**
-     * @param int $chainId
-     * @return $this
      * @noinspection PhpUnnecessaryStaticReferenceInspection
      */
-    public function getUnsigned(int $chainId): static
+    public function getUnsigned(): static
     {
         return clone($this, [
-            "signatureV" => $chainId,
+            "signatureV" => $this->chainId,
             "signatureR" => null,
             "signatureS" => null
         ]);
     }
 
     /**
-     * @param int $chainId
      * @return Bytes32
      */
-    public function signPreImage(int $chainId): Bytes32
+    public function signPreImage(): Bytes32
     {
-        $unSignedTx = $this->isSigned() ? $this->getUnsigned($chainId) : $this;
+        $unSignedTx = $this->isSigned() ? $this->getUnsigned() : $this;
         return new Bytes32(Keccak256::hash($unSignedTx->encode()->bytes(), true));
     }
 
     /**
-     * @param int $chainId
      * @param EcdsaSignature256 $signature
      * @return static
      * @noinspection PhpUnnecessaryStaticReferenceInspection
      */
-    public function withSignature(int $chainId, EcdsaSignature256 $signature): static
+    public function withSignature(EcdsaSignature256 $signature): static
     {
         if ($signature->recoveryId === null) {
             throw new \InvalidArgumentException("Signature recovery ID must be set");
         }
 
         return clone($this, [
-            "signatureV" => ($chainId * 2) + ($signature->recoveryId + 35),
+            "signatureV" => ($this->chainId * 2) + ($signature->recoveryId + 35),
             "signatureR" => $signature->r,
             "signatureS" => $signature->s
         ]);
