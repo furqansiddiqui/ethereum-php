@@ -96,16 +96,18 @@ abstract class AbstractAbiCodecs
                 return "";
             }
 
-            throw new \InvalidArgumentException("Invalid hex string");
+            throw new \InvalidArgumentException("Invalid hex string (empty)");
         }
 
-        if (!ctype_xdigit($hex) || (strlen($hex) % 2) !== 0) {
-            throw new \InvalidArgumentException("Invalid hex string");
+        if (!ctype_xdigit($hex)) {
+            throw new \InvalidArgumentException("Invalid hex string (invalid chars)");
+        } elseif ((strlen($hex) % 2) !== 0) {
+            throw new \InvalidArgumentException("Invalid hex string (odd length)");
         }
 
         $binary = hex2bin($hex);
         if ($binary === false) {
-            throw new \InvalidArgumentException("Invalid hex string");
+            throw new \InvalidArgumentException("Invalid hex string (conversion failed)");
         }
 
         return $binary;
