@@ -6,22 +6,17 @@
 
 declare(strict_types=1);
 
-namespace FurqanSiddiqui\Ethereum\Codecs\ABI;
+namespace FurqanSiddiqui\Ethereum\Evm;
 
 use Charcoal\Contracts\Buffers\ReadableBufferInterface;
 use FurqanSiddiqui\Ethereum\Codecs\RLP\RlpCodec;
-use FurqanSiddiqui\Ethereum\Evm\AbiParam;
-use FurqanSiddiqui\Ethereum\Evm\ContractDtoInterface;
-use FurqanSiddiqui\Ethereum\Evm\ContractEvent;
-use FurqanSiddiqui\Ethereum\Evm\ContractMethod;
-use FurqanSiddiqui\Ethereum\Evm\SmartContract;
 
 /**
- * The AbiDtoCodec class is a utility for encoding various types of contract-related
+ * The ContractRlpCodec class is a utility for encoding various types of contract-related
  * data structures into a readable buffer format. It provides methods for encoding
  * ABI parameters, contract events, contract methods, and complete smart contracts.
  */
-final readonly class AbiDtoCodec
+final readonly class ContractRlpCodec
 {
     /**
      * @param ContractDtoInterface $item
