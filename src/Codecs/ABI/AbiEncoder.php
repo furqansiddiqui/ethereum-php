@@ -309,7 +309,13 @@ final class AbiEncoder extends AbstractAbiCodecs
             throw new \InvalidArgumentException("Invalid bytes length; Expected 1-32, got: " . $length);
         }
 
-        $binary = self::normalizeInputString($value, allowEmpty: false);
+        if ($value instanceof ReadableBufferInterface) {
+            $binary = $value->bytes();
+        } else {
+            $str = is_string($value) ? $value : (string)$value;
+            $binary = str_starts_with($str, "0x") ? self::normalizeInputString($str, allowEmpty: false) : $str;
+        }
+
         if (strlen($binary) !== $length) {
             throw new \InvalidArgumentException(sprintf(
                 "Invalid bytes length; Expected %d bytes, got: %d",
