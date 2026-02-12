@@ -104,13 +104,13 @@ final class AbiEncoder extends AbstractAbiCodecs
             return self::encodeAddress($value)->bytes();
         }
 
+        if ($type === "bytes32") {
+            return self::encodeFixedBytes($value, 32)->bytes();
+        }
+
         if (preg_match("/^bytes([0-9]{1,2})$/", $type, $m)) {
             $len = (int)$m[1];
             return self::encodeFixedBytes($value, $len)->bytes();
-        }
-
-        if ($type === "bytes32") {
-            return self::encodeFixedBytes($value, 32)->bytes();
         }
 
         throw new \InvalidArgumentException("Unsupported static ABI type: " . $type);
