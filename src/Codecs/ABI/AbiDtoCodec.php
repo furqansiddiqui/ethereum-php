@@ -17,9 +17,11 @@ use FurqanSiddiqui\Ethereum\Evm\ContractMethod;
 use FurqanSiddiqui\Ethereum\Evm\SmartContract;
 
 /**
- * Encodes the provided ContractDtoInterface instance into a readable buffer.
+ * The AbiDtoCodec class is a utility for encoding various types of contract-related
+ * data structures into a readable buffer format. It provides methods for encoding
+ * ABI parameters, contract events, contract methods, and complete smart contracts.
  */
-final readonly class AbiCodec
+final readonly class AbiDtoCodec
 {
     /**
      * @param ContractDtoInterface $item
