@@ -12,11 +12,11 @@ use Charcoal\Contracts\Buffers\ReadableBufferInterface;
 use FurqanSiddiqui\Ethereum\Codecs\RLP\RlpCodec;
 
 /**
- * The ContractRlpCodec class is a utility for encoding various types of contract-related
+ * The ContractSignatureDto class is a utility for encoding various types of contract-related
  * data structures into a readable buffer format. It provides methods for encoding
  * ABI parameters, contract events, contract methods, and complete smart contracts.
  */
-final readonly class ContractRlpCodec
+final readonly class ContractSignatureDto
 {
     /**
      * @param ContractDtoInterface $item
