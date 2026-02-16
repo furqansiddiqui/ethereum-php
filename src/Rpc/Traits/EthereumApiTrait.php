@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Rpc\Traits;
 
+use FurqanSiddiqui\Ethereum\Codecs\ABI\AbiDecoder;
 use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Rpc\Result\Transaction;
 use FurqanSiddiqui\Ethereum\Rpc\Result\TxReceipt;
@@ -170,5 +171,30 @@ trait EthereumApiTrait
         }
 
         return new Wei(gmp_init($balance, 16));
+    }
+
+    /**
+     * @throws \FurqanSiddiqui\Ethereum\Rpc\EthereumRpcException
+     */
+    public function eth_call(
+        EthereumAddress|string $accountId,
+        string                 $encoded,
+        string                 $scope = "latest"
+    ): ?string
+    {
+        if (!in_array($scope, ["latest", "earliest", "pending"])) {
+            throw new \InvalidArgumentException("Invalid block scope; " .
+                'Valid values are "latest", "earliest" and "pending"');
+        }
+
+        $result = $this->call("eth_call", [[
+            "to" => (string)$accountId,
+            "data" => $encoded,
+        ], $scope]);
+        if ($result === "0x") {
+            return null;
+        }
+
+        return $result;
     }
 }

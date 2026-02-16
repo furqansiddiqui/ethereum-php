@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Evm;
 
+use FurqanSiddiqui\Ethereum\Codecs\ABI\AbiEncoder;
+
 /**
  * Represents a method within a contract, including its type, name, inputs, outputs, and properties such as
  * whether it is constant or payable.
@@ -20,6 +22,9 @@ final class ContractMethod implements ContractDtoInterface
     private(set) array $inputs = [];
     /** @var AbiParam[] */
     private(set) array $outputs = [];
+
+    private ?array $inputParamTypes = null;
+    private ?array $outputParamTypes = null;
 
     public function __construct(
         public readonly ContractMethodType $type,
@@ -46,6 +51,41 @@ final class ContractMethod implements ContractDtoInterface
     public function appendOutput(AbiParam $param): void
     {
         $this->outputs[] = $param;
+    }
+
+    /**
+     * @param bool $refresh
+     * @return array
+     */
+    public function inputTypes(bool $refresh = false): array
+    {
+        if (!$refresh && $this->inputParamTypes !== null) {
+            return $this->inputParamTypes;
+        }
+
+        return $this->inputParamTypes = array_map(fn(AbiParam $param) => $param->type, $this->inputs);
+    }
+
+    /**
+     * @param bool $refresh
+     * @return array
+     */
+    public function outputTypes(bool $refresh = false): array
+    {
+        if (!$refresh && $this->outputParamTypes !== null) {
+            return $this->outputParamTypes;
+        }
+
+        return $this->outputParamTypes = array_map(fn(AbiParam $param) => $param->type, $this->outputs);
+    }
+
+    /**
+     * @param array $values
+     * @return string
+     */
+    public function abiEncodeCall(array $values): string
+    {
+        return AbiEncoder::encodeCall($this->signature(), $this->inputTypes(), $values);
     }
 
     /**
