@@ -87,7 +87,7 @@ final class ContractMethod implements ContractDtoInterface
      */
     public function abiEncodeCall(array $values): string
     {
-        return AbiEncoder::encodeCall($this->signature(), $this->inputTypes(), $values);
+        return bin2hex(AbiEncoder::encodeCall($this->signature(), $this->inputTypes(), $values));
     }
 
     /**
