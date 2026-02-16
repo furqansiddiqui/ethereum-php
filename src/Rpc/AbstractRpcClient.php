@@ -46,7 +46,7 @@ abstract class AbstractRpcClient
      * @throws EthereumRpcException
      */
     #[\NoDiscard]
-    final public function call(
+    final protected function call(
         string  $method,
         array   $params = [],
         ?string $requestId = null
