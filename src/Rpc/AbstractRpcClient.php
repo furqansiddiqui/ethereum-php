@@ -56,6 +56,8 @@ abstract class AbstractRpcClient
         $requestId ??= $this->rpcCount;
         try {
             $result = $this->httpClient->request(HttpMethod::POST, $this->serverUrl, [
+                "Content-Type" => "application/json"
+            ], [
                 "jsonrpc" => "2.0",
                 "method" => $method,
                 "id" => $requestId,
