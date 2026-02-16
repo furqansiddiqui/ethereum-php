@@ -35,11 +35,12 @@ final class ContractEvent implements ContractDtoInterface
 
     /**
      * @param AbiParam $param
-     * @return void
+     * @return self
      */
-    public function appendInput(AbiParam $param): void
+    public function appendInput(AbiParam $param): self
     {
         $this->inputs[] = $param;
+        return $this;
     }
 
     /**

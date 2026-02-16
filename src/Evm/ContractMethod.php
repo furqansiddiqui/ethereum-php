@@ -37,20 +37,22 @@ final class ContractMethod implements ContractDtoInterface
 
     /**
      * @param AbiParam $param
-     * @return void
+     * @return self
      */
-    public function appendInput(AbiParam $param): void
+    public function appendInput(AbiParam $param): self
     {
         $this->inputs[] = $param;
+        return $this;
     }
 
     /**
      * @param AbiParam $param
-     * @return void
+     * @return self
      */
-    public function appendOutput(AbiParam $param): void
+    public function appendOutput(AbiParam $param): self
     {
         $this->outputs[] = $param;
+        return $this;
     }
 
     /**
