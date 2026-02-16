@@ -1,7 +1,7 @@
 # Ethereum PHP Library
 
 
-[![Tests Passing](https://github.com/furqansiddiqui/ethereum-php/actions/workflows/tests.yml/badge.svg)](https://github.com/furqansiddiqui/blockchain-core-php/actions)
+[![Tests Passing](https://github.com/furqansiddiqui/ethereum-php/actions/workflows/tests.yml/badge.svg)](https://github.com/furqansiddiqui/ethereum-php/actions)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 A modern, dependency-light Ethereum library for PHP 8.5+, powered by a clean cryptographic core. This library provides a comprehensive suite of tools for interacting with the Ethereum blockchain, including account management, transaction handling, and smart contract interaction.
