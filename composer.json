@@ -20,7 +20,7 @@
     "ext-curl": "*",
     "ext-json": "*",
     "charcoal-dev/http-client": "^0.2.13",
-    "furqansiddiqui/blockchain-core-php": "dev-main"
+    "furqansiddiqui/blockchain-core-php": "^0.1.0"
   },
   "autoload": {
     "psr-4": {
