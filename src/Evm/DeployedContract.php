@@ -20,7 +20,7 @@ use FurqanSiddiqui\Ethereum\Rpc\AbstractRpcClient;
 class DeployedContract
 {
     public function __construct(
-        protected readonly EthereumAddress   $address,
+        public readonly EthereumAddress      $address,
         protected readonly SmartContract     $abi,
         protected readonly AbstractRpcClient $rpcClient
     )

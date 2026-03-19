@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Rpc\Traits;
 
-use FurqanSiddiqui\Ethereum\Codecs\ABI\AbiDecoder;
 use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Rpc\Result\Transaction;
 use FurqanSiddiqui\Ethereum\Rpc\Result\TxReceipt;
