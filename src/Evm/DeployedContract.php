@@ -38,7 +38,7 @@ class DeployedContract
     {
         $response = $this->rpcClient->eth_call(
             $this->address,
-            bin2hex(AbiEncoder::encodeCall($method->signature(), $method->inputTypes(), $params)),
+            "0x" . bin2hex(AbiEncoder::encodeCall($method->signature(), $method->inputTypes(), $params)),
             $scope);
         if (!$response) {
             return [];
