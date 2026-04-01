@@ -63,6 +63,29 @@ trait EthereumApiTrait
     }
 
     /**
+     * @return \GMP
+     * @throws \FurqanSiddiqui\Ethereum\Rpc\EthereumRpcException
+     */
+    private function eth_maxPriorityFeePerGasInGmp(): \GMP
+    {
+        $maxPriorityFeePerGas = $this->normalizeBase16($this->call("eth_maxPriorityFeePerGas"));
+        if (!$maxPriorityFeePerGas) {
+            $this->throwBadResultType("eth_maxPriorityFeePerGas", "Base16", gettype($maxPriorityFeePerGas));
+        }
+
+        return gmp_init($maxPriorityFeePerGas, 16);
+    }
+
+    /**
+     * @return Wei
+     * @throws \FurqanSiddiqui\Ethereum\Rpc\EthereumRpcException
+     */
+    public function eth_maxPriorityFeePerGasInWei(): Wei
+    {
+        return new Wei($this->eth_maxPriorityFeePerGasInGmp());
+    }
+
+    /**
      * @throws \FurqanSiddiqui\Ethereum\Rpc\EthereumRpcException
      */
     public function eth_syncing(): bool
