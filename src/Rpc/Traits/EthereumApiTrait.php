@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Ethereum\Rpc\Traits;
 
+use Charcoal\Buffers\Buffer;
 use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Rpc\Result\Transaction;
 use FurqanSiddiqui\Ethereum\Rpc\Result\TxReceipt;
@@ -193,6 +194,21 @@ trait EthereumApiTrait
         }
 
         return new Wei(gmp_init($balance, 16));
+    }
+
+    /**
+     * @param Buffer $signedTx
+     * @return string
+     * @throws \FurqanSiddiqui\Ethereum\Rpc\EthereumRpcException
+     */
+    public function eth_sendRawTransaction(Buffer $signedTx): string
+    {
+        $txHash = $this->call("eth_sendRawTransaction", ["0x" . bin2hex($signedTx->bytes())]);
+        if (!is_string($txHash)) {
+            $this->throwBadResultType("eth_sendRawTransaction", "string", gettype($txHash));
+        }
+
+        return $txHash;
     }
 
     /**
