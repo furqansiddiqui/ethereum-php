@@ -40,7 +40,7 @@ final class RlpSchema
      */
     public function encode(RlpEncodableInterface $object): Buffer
     {
-        return RlpCodec::encode($this->encodeItems($object));
+        return RlpCodec::encode([$this->encodeItems($object)]);
     }
 
     /**

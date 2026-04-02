@@ -44,8 +44,13 @@ abstract class AbstractEthereumTransaction implements
      */
     public static function decodeRawTransaction(int $chainId, ReadableBufferInterface $raw): static
     {
-        $rlpObject = static::getRlpSchema()->createObject(RlpCodec::decode($raw));
-        $tx = new static();
+        $decoded = RlpCodec::decode($raw);
+        if (count($decoded) === 1 && is_array($decoded[0])) {
+            $decoded = $decoded[0];
+        }
+
+        $rlpObject = static::getRlpSchema()->createObject($decoded);
+        $tx = new static($chainId);
         foreach ($rlpObject as $key => $value) {
             if (!property_exists($tx, $key)) {
                 throw new \InvalidArgumentException(sprintf('Unknown property "%s" in %s', $key, static::class));
