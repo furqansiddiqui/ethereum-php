@@ -12,6 +12,7 @@ use Charcoal\Buffers\Buffer;
 use FurqanSiddiqui\Ethereum\Keypair\EthereumAddress;
 use FurqanSiddiqui\Ethereum\Rpc\Result\Transaction;
 use FurqanSiddiqui\Ethereum\Rpc\Result\TxReceipt;
+use FurqanSiddiqui\Ethereum\Transactions\EthereumTransactionInterface;
 use FurqanSiddiqui\Ethereum\Unit\Wei;
 
 /**
@@ -197,12 +198,20 @@ trait EthereumApiTrait
     }
 
     /**
-     * @param Buffer $signedTx
+     * @param EthereumTransactionInterface|Buffer $signedTx
      * @return string
      * @throws \FurqanSiddiqui\Ethereum\Rpc\EthereumRpcException
      */
-    public function eth_sendRawTransaction(Buffer $signedTx): string
+    public function eth_sendRawTransaction(EthereumTransactionInterface|Buffer $signedTx): string
     {
+        if ($signedTx instanceof EthereumTransactionInterface) {
+            if (!$signedTx->isSigned()) {
+                throw new \InvalidArgumentException("Transaction must be signed before sending");
+            }
+
+            $signedTx = $signedTx->encode();
+        }
+
         $txHash = $this->call("eth_sendRawTransaction", ["0x" . bin2hex($signedTx->bytes())]);
         if (!is_string($txHash)) {
             $this->throwBadResultType("eth_sendRawTransaction", "string", gettype($txHash));
