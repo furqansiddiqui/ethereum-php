@@ -118,7 +118,7 @@ trait EthereumApiTrait
      */
     public function eth_getBlockByNumber(?int $num, bool $fullTx = false): ?array
     {
-        $tag = $num < 0 ? "latest" : "0x" . gmp_strval(gmp_init($num), 16);
+        $tag = (is_null($num) || $num < 0) ? "latest" : ("0x" . gmp_strval(gmp_init($num), 16));
         $block = $this->call("eth_getBlockByNumber", [$tag, $fullTx]);
         if ($block === null) {
             return null;
