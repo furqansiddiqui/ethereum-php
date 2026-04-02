@@ -168,11 +168,12 @@ trait EthereumApiTrait
     /**
      * @throws \FurqanSiddiqui\Ethereum\Rpc\EthereumRpcException
      */
-    public function eth_getTransactionCount(EthereumAddress|string $accountId, int $height = -1): int
+    public function eth_getTransactionCount(EthereumAddress|string $accountId, ?int $height = null): int
     {
-        $height = $height < 0 ? "latest" : "0x" . gmp_strval(gmp_init($height), 16);
+        $height = (is_null($height) || $height < 0) ? "latest" : ("0x" . gmp_strval(gmp_init($height), 16));
+        $accountId = $accountId instanceof EthereumAddress ? $accountId->address : $accountId;
         $txCount = $this->normalizeBase16($this->call("eth_getTransactionCount", [$accountId, $height]));
-        if (!$txCount) {
+        if (null === $txCount) {
             $this->throwBadResultType("eth_getTransactionCount", "Base16", gettype($txCount));
         }
 
@@ -189,8 +190,9 @@ trait EthereumApiTrait
                 'Valid values are "latest", "earliest" and "pending"');
         }
 
+        $accountId = $accountId instanceof EthereumAddress ? $accountId->address : $accountId;
         $balance = $this->normalizeBase16($this->call("eth_getBalance", [$accountId, $scope]));
-        if (!$balance) {
+        if (null === $balance) {
             $this->throwBadResultType("eth_getBalance", "Base16", gettype($balance));
         }
 
